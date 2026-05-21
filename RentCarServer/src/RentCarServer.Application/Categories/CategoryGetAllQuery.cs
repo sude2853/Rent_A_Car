@@ -10,5 +10,5 @@ internal sealed class CategoryGetAllQueryHandler(
     ICategoryRepository categoryRepository) : IRequestHandler<CategoryGetAllQuery, IQueryable<CategoryDto>>
 {
     public Task<IQueryable<CategoryDto>> Handle(CategoryGetAllQuery request, CancellationToken cancellationToken) =>
-        Task.FromResult(categoryRepository.GetAllWithAudit().MapToGet().AsQueryable());
+        Task.FromResult(categoryRepository.GetAll().MapToGet().AsQueryable());
 }

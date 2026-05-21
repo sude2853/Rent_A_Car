@@ -1,0 +1,291 @@
+﻿<section class="reservation-complete-page">
+    @if (loading()) {
+        <div class="container py-5">
+            <div class="reservations-state">
+                <div class="spinner-border text-primary" role="status"></div>
+                <span>Rezervasyon bilgileriniz yükleniyor...</span>
+            </div>
+        </div>
+    } @else if (message()) {
+        <div class="container py-5">
+            <div class="alert alert-warning reservation-alert">
+                {{message()}}
+                <a routerLink="/login" class="ms-2">Giriş yap</a>
+            </div>
+        </div>
+    } @else if (reservations().length === 0) {
+        <div class="container py-5">
+            <div class="reservations-empty">
+                <i class="bi bi-calendar2-x"></i>
+                <h3>Henüz rezervasyonunuz yok</h3>
+                <p>Araç seçip ödeme simülasyonunu tamamladığınızda rezervasyon bilgileriniz burada görünecek.</p>
+                <a routerLink="/" class="btn btn-primary">Araçları Gör</a>
+            </div>
+        </div>
+    } @else {
+        @if (reservations()[0]; as reservation) {
+            <div class="reservation-success-band">
+                <div class="container">
+                    <div class="reservation-success-content">
+                        <span class="success-icon"><i class="bi bi-check-lg"></i></span>
+                        <div>
+                            <h1>Rezervasyonunuz Başarıyla Tamamlandı!</h1>
+                            <p>Rezervasyon numaranız: <strong>{{reservation.reservationNumber}}</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container reservation-complete-container">
+                <div class="reservation-detail-card">
+                    <div class="detail-card-title">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span>Rezervasyon Detayları</span>
+                    </div>
+                    <div class="reservation-summary-detail">
+                        <div class="vehicle-detail-block">
+                            <h3>Araç Bilgileri</h3>
+                            <strong>{{reservation.vehicle.brand}} {{reservation.vehicle.model}}</strong>
+                            <div class="detail-list">
+                                <span><i class="bi bi-people-fill"></i>{{reservation.vehicle.seatCount}} Kişi</span>
+                                <span><i class="bi bi-car-front-fill"></i>{{reservation.vehicle.categoryName}}</span>
+                                <span><i class="bi bi-fuel-pump-fill"></i>{{reservation.vehicle.plate}}</span>
+                            </div>
+                        </div>
+                        <div class="rental-detail-block">
+                            <h3>Kiralama Detayları</h3>
+                            <div class="detail-list">
+                                <span><i class="bi bi-geo-alt-fill"></i>{{reservation.pickUp?.name || 'Isparta Süleyman Demirel Havalimanı'}}</span>
+                                <span><i class="bi bi-calendar-event"></i>{{formatDate(reservation.pickUpDate)}} - {{formatTime(reservation.pickUpTime)}}</span>
+                                <span><i class="bi bi-calendar-check"></i>{{formatDate(reservation.deliveryDate)}} - {{formatTime(reservation.deliveryTime)}}</span>
+                                <span><i class="bi bi-clock"></i>{{reservation.totalDay}} Gün</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reservation-detail-card">
+                    <div class="detail-card-title">
+                        <i class="bi bi-person-fill"></i>
+                        <span>Sürücü Bilgileri</span>
+                    </div>
+                    <div class="driver-info-table">
+                        <div>
+                            <span>Ad Soyad:</span>
+                            <strong>{{reservation.customer.fullName}}</strong>
+                        </div>
+                        <div>
+                            <span>E-posta:</span>
+                            <strong>{{reservation.customer.email}}</strong>
+                        </div>
+                        <div>
+                            <span>T.C. Kimlik No:</span>
+                            <strong>{{maskIdentity(reservation.customer.identityNumber)}}</strong>
+                        </div>
+                        <div>
+                            <span>Telefon:</span>
+                            <strong>{{reservation.customer.phoneNumber}}</strong>
+                        </div>
+                        <div>
+                            <span>Adres:</span>
+                            <strong>{{reservation.customer.fullAddress || '-'}}</strong>
+                        </div>
+                        <div>
+                            <span>Durum:</span>
+                            <strong>{{statusText(reservation.status)}}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reservation-detail-card">
+                    <div class="detail-card-title">
+                        <i class="bi bi-credit-card-fill"></i>
+                        <span>Ücret ve Ödeme Bilgileri</span>
+                    </div>
+                    <div class="payment-detail-grid">
+                        <div>
+                            <span>Araç Kiralama</span>
+                            <strong>{{formatPrice(reservation.vehicleDailyPrice)}} / gün</strong>
+                        </div>
+                        <div>
+                            <span>Güvence Paketi</span>
+                            <strong>{{reservation.protectionPackageName}} - {{formatPrice(reservation.protectionPackagePrice)}}</strong>
+                        </div>
+                        <div>
+                            <span>Kart Bilgisi</span>
+                            <strong>**** **** **** {{cardLast4(reservation)}}</strong>
+                        </div>
+                        <div>
+                            <span>Toplam Ödeme</span>
+                            <strong class="total-price">{{formatPrice(reservation.total)}}</strong>
+                        </div>
+                    </div>
+
+                    @if (reservation.reservationExtras.length > 0) {
+                        <div class="reservation-extras mt-3">
+                            @for (extra of reservation.reservationExtras; track extra.extraName) {
+                                <span>{{extra.extraName}} - {{formatPrice(extra.price)}}</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="reservation-detail-card important-info-card">
+                    <div class="detail-card-title">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>Önemli Bilgiler</span>
+                    </div>
+                    <div class="important-info-list">
+                        <div class="important-info-item">
+                            <i class="bi bi-info-circle-fill text-info"></i>
+                            <div>
+                                <strong>Araç Teslim Alma:</strong>
+                                <p>{{reservation.pickUp?.name || 'Isparta Süleyman Demirel Havalimanı'}} ofisimizden aracınızı teslim alabilirsiniz. Ofis açılış saatleri: 06:00 - 24:00</p>
+                            </div>
+                        </div>
+                        <div class="important-info-item">
+                            <i class="bi bi-card-checklist text-primary"></i>
+                            <div>
+                                <strong>Gerekli Belgeler:</strong>
+                                <p>TC Kimlik kartı, geçerli ehliyet ve kredi kartı (rezervasyon yapılan kart) yanınızda bulundurulmalıdır.</p>
+                            </div>
+                        </div>
+                        <div class="important-info-item">
+                            <i class="bi bi-clock-history text-warning"></i>
+                            <div>
+                                <strong>İptal Politikası:</strong>
+                                <p>Rezervasyonunuzu teslim alma tarihinden 24 saat öncesine kadar ücretsiz iptal edebilirsiniz.</p>
+                            </div>
+                        </div>
+                        <div class="important-info-item">
+                            <i class="bi bi-telephone text-success"></i>
+                            <div>
+                                <strong>İletişim:</strong>
+                                <p>Herhangi bir sorunuz için 7/24 müşteri hizmetlerimizi arayabilirsiniz:</p>
+                                <strong class="support-phone">0850 222 3344</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (hasPickUpDocument(reservation)) {
+                    <div class="reservation-detail-card approval-document-card">
+                        <div class="detail-card-title">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <span>Araç Teslim Formu Kopyası</span>
+                        </div>
+                        <div class="approval-document-grid">
+                            <div class="approval-document-summary">
+                                <div>
+                                    <span>Form Durumu</span>
+                                    <strong class="document-ready"><i class="bi bi-check-circle-fill"></i> Teslim formu dolduruldu</strong>
+                                </div>
+                                <div>
+                                    <span>Teslim Kilometresi</span>
+                                    <strong>{{reservation.pickUpForm?.kilometer || 0}} km</strong>
+                                </div>
+                                <div>
+                                    <span>Müşteri</span>
+                                    <strong>{{reservation.customer.fullName}}</strong>
+                                </div>
+                                <div>
+                                    <span>Rezervasyon No</span>
+                                    <strong>{{reservation.reservationNumber}}</strong>
+                                </div>
+                            </div>
+
+                            <div class="approval-document-section">
+                                <h3>Kontrol Edilen Malzemeler</h3>
+                                @if ((reservation.pickUpForm?.supplies?.length ?? 0) > 0) {
+                                    <div class="document-chip-list">
+                                        @for (supply of reservation.pickUpForm?.supplies ?? []; track supply) {
+                                            <span><i class="bi bi-check2"></i>{{supply}}</span>
+                                        }
+                                    </div>
+                                } @else {
+                                    <p class="document-muted">Malzeme bilgisi girilmemiş.</p>
+                                }
+                            </div>
+
+                            <div class="approval-document-section">
+                                <h3>Hasar Bilgileri</h3>
+                                @if ((reservation.pickUpForm?.damages?.length ?? 0) > 0) {
+                                    <div class="document-damage-list">
+                                        @for (damage of reservation.pickUpForm?.damages ?? []; track damage.level + damage.description) {
+                                            <div>
+                                                <strong>{{damage.level}}</strong>
+                                                <span>{{damageText(damage.description) || 'Açıklama girilmemiş'}}</span>
+                                            </div>
+                                        }
+                                    </div>
+                                } @else {
+                                    <p class="document-muted">Teslim sırasında hasar kaydı bulunmamaktadır.</p>
+                                }
+                            </div>
+
+                            <div class="approval-document-section">
+                                <h3>Notlar</h3>
+                                <p class="document-note">{{reservation.pickUpForm?.note || 'Ek not girilmemiş.'}}</p>
+                            </div>
+
+                            @if (customerSignature(reservation)) {
+                                <div class="approval-document-section signature-preview-section">
+                                    <h3>Müşteri İmzası</h3>
+                                    <img [src]="formImageUrl(customerSignature(reservation))" alt="Müşteri imzası">
+                                </div>
+                            }
+
+                            @if (vehicleFormImages(reservation).length > 0) {
+                                <div class="approval-document-section document-photo-section">
+                                    <h3>Araç Teslim Fotoğrafları</h3>
+                                    <div class="document-photo-grid">
+                                        @for (image of vehicleFormImages(reservation); track image) {
+                                            <img [src]="formImageUrl(image)" alt="Araç teslim fotoğrafı">
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                } @else {
+                    <div class="reservation-detail-card approval-document-card">
+                        <div class="detail-card-title">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>Araç Teslim Formu</span>
+                        </div>
+                        <div class="approval-document-empty">
+                            <i class="bi bi-hourglass-split"></i>
+                            <div>
+                                <strong>Teslim formu henüz imzalı şekilde tamamlanmadı</strong>
+                                <p>Admin panelinde müşteri imzası alınarak teslim formu tamamlandığında form kopyası burada görünecek.</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (reservations().length > 1) {
+                    <div class="previous-reservations">
+                        <h2>Önceki Rezervasyonlar</h2>
+                        <div class="previous-reservation-list">
+                            @for (oldReservation of previousReservations(); track oldReservation.id) {
+                                <article>
+                                    <strong>{{oldReservation.reservationNumber}}</strong>
+                                    <span>{{oldReservation.vehicle.brand}} {{oldReservation.vehicle.model}}</span>
+                                    <small>{{formatDate(oldReservation.pickUpDate)}} - {{formatPrice(oldReservation.total)}}</small>
+                                </article>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="reservation-complete-actions">
+                    <a routerLink="/" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Yeni Rezervasyon Yap
+                    </a>
+                </div>
+            </div>
+        }
+    }
+</section>
+
+

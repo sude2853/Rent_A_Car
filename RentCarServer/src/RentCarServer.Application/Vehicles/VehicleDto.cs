@@ -46,6 +46,62 @@ public sealed class VehicleDto : EntityDto
 public static class VehicleExtensions
 {
     public static IQueryable<VehicleDto> MapTo(
+        this IQueryable<Vehicle> entities,
+        IQueryable<Branch> branches,
+        IQueryable<Category> categories
+        )
+    {
+        return entities
+        .Join(branches, m => m.BranchId.Value, m => m.Id, (vehicle, branch) => new { Vehicle = vehicle, Branch = branch })
+        .Join(categories, m => m.Vehicle.CategoryId.Value, m => m.Id, (r, category) => new { r.Vehicle, r.Branch, Category = category })
+            .Select(s => new VehicleDto
+            {
+                Id = s.Vehicle.Id,
+                Brand = s.Vehicle.Brand.Value,
+                Model = s.Vehicle.Model.Value,
+                ModelYear = s.Vehicle.ModelYear.Value,
+                Color = s.Vehicle.Color.Value,
+                Plate = s.Vehicle.Plate.Value,
+                CategoryId = s.Vehicle.CategoryId,
+                CategoryName = s.Category.Name.Value,
+                BranchId = s.Vehicle.BranchId,
+                BranchName = s.Branch.Name.Value,
+                VinNumber = s.Vehicle.VinNumber.Value,
+                EngineNumber = s.Vehicle.EngineNumber.Value,
+                Description = s.Vehicle.Description.Value,
+                ImageUrl = s.Vehicle.ImageUrl.Value,
+                FuelType = s.Vehicle.FuelType.Value,
+                Transmission = s.Vehicle.Transmission.Value,
+                EngineVolume = s.Vehicle.EngineVolume.Value,
+                EnginePower = s.Vehicle.EnginePower.Value,
+                TractionType = s.Vehicle.TractionType.Value,
+                FuelConsumption = s.Vehicle.FuelConsumption.Value,
+                SeatCount = s.Vehicle.SeatCount.Value,
+                Kilometer = s.Vehicle.Kilometer.Value,
+                DailyPrice = s.Vehicle.DailyPrice.Value,
+                WeeklyDiscountRate = s.Vehicle.WeeklyDiscountRate.Value,
+                MonthlyDiscountRate = s.Vehicle.MonthlyDiscountRate.Value,
+                InsuranceType = s.Vehicle.InsuranceType.Value,
+                LastMaintenanceDate = s.Vehicle.LastMaintenanceDate.Value,
+                LastMaintenanceKm = s.Vehicle.LastMaintenanceKm.Value,
+                NextMaintenanceKm = s.Vehicle.NextMaintenanceKm.Value,
+                InspectionDate = s.Vehicle.InspectionDate.Value,
+                InsuranceEndDate = s.Vehicle.InsuranceEndDate.Value,
+                CascoEndDate = s.Vehicle.CascoEndDate != null ? s.Vehicle.CascoEndDate.Value : null,
+                TireStatus = s.Vehicle.TireStatus.Value,
+                GeneralStatus = s.Vehicle.GeneralStatus.Value,
+                Features = s.Vehicle.Features.Select(f => f.Value).ToList(),
+                IsActive = s.Vehicle.IsActive,
+                CreatedAt = s.Vehicle.CreatedAt,
+                CreatedBy = s.Vehicle.CreatedBy,
+                CreatedFullName = string.Empty,
+                UpdatedAt = s.Vehicle.UpdatedAt,
+                UpdatedBy = s.Vehicle.UpdatedBy != null ? s.Vehicle.UpdatedBy.Value : null,
+                UpdatedFullName = null,
+            });
+    }
+
+    public static IQueryable<VehicleDto> MapTo(
         this IQueryable<EntityWithAuditDto<Vehicle>> entities,
         IQueryable<Branch> branches,
         IQueryable<Category> categories

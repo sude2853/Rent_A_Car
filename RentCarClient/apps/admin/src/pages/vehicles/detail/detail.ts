@@ -1,4 +1,4 @@
-import { httpResource } from '@angular/common/http';
+﻿import { httpResource } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import Blank from 'apps/admin/src/components/blank/blank';
@@ -111,3 +111,4 @@ isFeatureSelected(feature: string): boolean {
     return this.data().features.includes(feature);
   }
 }
+

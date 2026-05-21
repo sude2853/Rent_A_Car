@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ViewEncapsulation } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { httpResource } from '@angular/common/http';
 import Blank from 'apps/admin/src/components/blank/blank';
@@ -27,7 +27,7 @@ export default class ReservationDetail {
   readonly result = httpResource<Result<ReservationModel>>(() => `/rent/reservations/${this.id()}`);
   readonly data = computed(() => this.result.value()?.data ?? initialReservation);
   readonly loading = computed(() => this.result.isLoading());
-  readonly pageTitle = signal<string>("Rezervasyon Detayı");
+  readonly pageTitle = signal<string>("Rezervasyon DetayÄ±");
 
   readonly #activated = inject(ActivatedRoute);
   readonly #breadcrumb = inject(BreadcrumbService);
@@ -63,9 +63,10 @@ export default class ReservationDetail {
     switch (this.data().status) {
       case 'Bekliyor': return 'bg-warning'
       case 'Teslim Edildi': return 'bg-info'
-      case 'Tamamlandı': return 'bg-success'
-      case 'İptal Edildi': return 'bg-danger'
+      case 'Teslim Al\u0131nd\u0131': return 'bg-success'
+      case 'Ä°ptal Edildi': return 'bg-danger'
       default: return ''
     }
   }
 }
+

@@ -200,7 +200,7 @@ export default class Create {
   save(form: NgForm) {
     if (!form.valid) return;
 
-    if(!this.data().protectionPackageId){
+    if(!this.id() && !this.data().protectionPackageId){
       this.#toast.showToast("Uyarı","Güvence paketi seçmelisiniz","error");
       return;
     }

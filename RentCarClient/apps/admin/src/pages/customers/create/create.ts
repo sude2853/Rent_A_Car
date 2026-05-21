@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+﻿import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, resource, signal, ViewEncapsulation } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,15 +38,18 @@ export default class CreateCustomer {
   readonly result = resource({
     params: () => this.id(),
     loader: async () => {
+      if (!this.id()) return { ...initialCustomerModel };
+
       const res = await lastValueFrom(this.#http.getResource<CustomerModel>(`/rent/customers/${this.id()}`));
+      const customer = this.normalizeCustomer(res.data ?? { ...initialCustomerModel });
       this.bredcrumbs.update(prev => [...prev, {
-        title: res.data!.fullName,
+        title: customer.fullName,
         icon: 'bi-pen',
         url: `/customers/edit/${this.id()}`,
         isActive: true
       }]);
       this.#breadcrumb.reset(this.bredcrumbs());
-      return res.data;
+      return customer;
     }
   });
   readonly data = linkedSignal(() => this.result.value() ?? { ...initialCustomerModel });
@@ -71,7 +74,7 @@ export default class CreateCustomer {
           isActive: true
         }]);
         this.#breadcrumb.reset(this.bredcrumbs());
-        const date = this.#date.transform("01.01.2000", "yyyy-MM-dd")!;
+        const date = this.#date.transform('01.01.2000', 'yyyy-MM-dd')!;
         this.data.update(prev => ({...prev, dateOfBirth: date, drivingLicenseIssuanceDate: date}));
       }
     });
@@ -80,17 +83,18 @@ export default class CreateCustomer {
   save(form: NgForm) {
     if (!form.valid) return;
 
+    const body = this.toRequestBody();
     this.loading.set(true);
     if (!this.id()) {
-      this.#http.post<string>('/rent/customers', this.data(), res => {
-        this.#toast.showToast("Başarılı", res, "success");
-        this.#router.navigateByUrl("/customers");
+      this.#http.post<string>('/rent/customers', body, res => {
+        this.#toast.showToast('Başarılı', res, 'success');
+        this.#router.navigateByUrl('/customers');
         this.loading.set(false);
       }, () => this.loading.set(false));
     } else {
-      this.#http.put<string>('/rent/customers', this.data(), res => {
-        this.#toast.showToast("Başarılı", res, "info");
-        this.#router.navigateByUrl("/customers");
+      this.#http.put<string>('/rent/customers', body, res => {
+        this.#toast.showToast('Başarılı', res, 'info');
+        this.#router.navigateByUrl('/customers');
         this.loading.set(false);
       }, () => this.loading.set(false));
     }
@@ -101,5 +105,27 @@ export default class CreateCustomer {
       ...prev,
       isActive: status
     }));
+  }
+
+  private normalizeCustomer(customer: CustomerModel): CustomerModel {
+    return {
+      ...customer,
+      dateOfBirth: this.toDateInputValue(customer.dateOfBirth),
+      drivingLicenseIssuanceDate: this.toDateInputValue(customer.drivingLicenseIssuanceDate)
+    };
+  }
+
+  private toRequestBody(): CustomerModel {
+    const customer = this.data();
+    return {
+      ...customer,
+      dateOfBirth: this.toDateInputValue(customer.dateOfBirth),
+      drivingLicenseIssuanceDate: this.toDateInputValue(customer.drivingLicenseIssuanceDate),
+      phoneNumber: String(customer.phoneNumber ?? '').replace(/\D/g, '')
+    };
+  }
+
+  private toDateInputValue(value: string) {
+    return String(value ?? '').slice(0, 10);
   }
 }

@@ -1,5 +1,5 @@
-<!-- Hero Section -->
-<section class="hero-section">
+﻿<!-- Hero Section -->
+<section class="hero-section" [hidden]="selectedVehicle()">
     <div class="hero-overlay">
         <div class="container">
             <div class="justify-content-center">
@@ -25,9 +25,11 @@
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label class="form-label text-muted small">Alış & Dönüş</label>
-                                        <select class="form-control">
-                                            <option>Kayseri Havalimanı</option>
+                                        <label class="form-label text-muted small">Alış & Dönüş Noktası</label>
+                                        <select class="form-control" name="pickUpLocation" [ngModel]="selectedPickUpLocationId()" (ngModelChange)="selectedPickUpLocationId.set($event)">
+                                            @for (location of rentalLocations(); track location.name) {
+                                                <option [value]="location.id">{{location.name}}</option>
+                                            }
                                         </select>
                                     </div>
                                 </div>
@@ -36,11 +38,11 @@
                                     <div class="form-group">
                                         <label class="form-label text-muted small">Alış tarihi saati</label>
                                         <div class="d-flex">
-                                            <input type="date" class="form-control">
-                                            <select class="form-control">
-                                                <option>00:00</option>
-                                                <option>00:30</option>
-                                                <option>01:00</option>
+                                            <input type="date" class="form-control" name="pickUpDate" [min]="today" [ngModel]="pickUpDate()" (ngModelChange)="updatePickUpDate($event)">
+                                            <select class="form-control" name="pickUpTime" [ngModel]="pickUpTime()" (ngModelChange)="updatePickUpTime($event)">
+                                                @for (time of availablePickUpTimes(); track time) {
+                                                    <option [value]="time">{{time}}</option>
+                                                }
                                             </select>
                                         </div>
                                     </div>
@@ -50,19 +52,19 @@
                                     <div class="form-group">
                                         <label class="form-label text-muted small">Dönüş tarihi saati</label>
                                         <div class="d-flex">
-                                            <input type="date" class="form-control">
-                                            <select class="form-control">
-                                                <option>00:00</option>
-                                                <option>00:30</option>
-                                                <option>01:00</option>
+                                            <input type="date" class="form-control" name="deliveryDate" [min]="addDays(pickUpDate(), 1)" [ngModel]="deliveryDate()" (ngModelChange)="updateDeliveryDate($event)">
+                                            <select class="form-control" name="deliveryTime" [ngModel]="deliveryTime()" (ngModelChange)="deliveryTime.set($event)">
+                                                @for (time of timeOptions; track time) {
+                                                    <option [value]="time">{{time}}</option>
+                                                }
                                             </select>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-3">
-                                    <button type="button" class="btn btn-primary btn-lg fw-bold">
-                                        ARAÇLARI GÖSTER
+                                    <button type="button" class="btn btn-primary btn-lg fw-bold" (click)="showVehicles()" [disabled]="loading()">
+                                        {{loading() ? 'YÜKLENİYOR...' : 'ARAÇLARI GÖSTER'}}
                                     </button>
                                 </div>
                             </div>
@@ -74,8 +76,483 @@
     </div>
 </section>
 
+@if (searched() && !selectedVehicle()) {
+<section id="vehicles" class="featured-cars py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Uygun Araçlar</h2>
+            <p class="lead text-muted">Seçtiğiniz kriterlere göre listelenen araçlar</p>
+        </div>
+
+        <div class="filter-bar">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-2 col-md-3">
+                    <div class="car-count">
+                        <span class="count-number">{{filteredVehicles().length}}</span>
+                        <span class="count-label">TEKLİF</span>
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-9">
+                    <div class="filter-options justify-content-md-end">
+                        <div class="filter-dropdown">
+                            <select class="form-select form-select-sm" [ngModel]="selectedCategory()" (ngModelChange)="selectedCategory.set($event)" name="categoryFilter">
+                                <option value="">ARAÇ TİPİ</option>
+                                @for (category of categories(); track category) {
+                                    <option [value]="category">{{category}}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-toggle form-check form-switch mb-0">
+                            <label class="form-label mb-0" for="automaticOnly">SADECE OTOMATİK</label>
+                            <input class="form-check-input" type="checkbox" id="automaticOnly" [ngModel]="automaticOnly()" (ngModelChange)="automaticOnly.set($event)" name="automaticOnly">
+                        </div>
+                        <div class="filter-dropdown">
+                            <select class="form-select form-select-sm" [ngModel]="driverAge()" (ngModelChange)="driverAge.set($event)" name="driverAgeFilter">
+                                <option value="21">SÜRÜCÜ YAŞI 21+</option>
+                                <option value="25">SÜRÜCÜ YAŞI 25+</option>
+                                <option value="30">SÜRÜCÜ YAŞI 30+</option>
+                            </select>
+                        </div>
+                        <div class="filter-dropdown">
+                            <select class="form-select form-select-sm" [ngModel]="selectedBrand()" (ngModelChange)="selectedBrand.set($event)" name="brandFilter">
+                                <option value="">MARKA</option>
+                                @for (brand of brands(); track brand) {
+                                    <option [value]="brand">{{brand}}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-dropdown">
+                            <select class="form-select form-select-sm" [ngModel]="selectedSeatCount()" (ngModelChange)="selectedSeatCount.set($event)" name="seatFilter">
+                                <option value="">KOLTUK SAYISI</option>
+                                @for (seatCount of seatCounts(); track seatCount) {
+                                    <option [value]="seatCount">{{seatCount}} Kişi</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">Temizle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (loading()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3 text-muted">Araçlar yükleniyor...</p>
+            </div>
+        } @else if (filteredVehicles().length === 0) {
+            <div class="alert alert-warning text-center">
+                Şu anda listelenecek araç bulunamadı.
+            </div>
+        } @else {
+            <div class="row g-4">
+                @for (vehicle of filteredVehicles(); track vehicle.id) {
+                    <div class="col-lg-4 col-md-6">
+                        <div class="car-card h-100">
+                            <div class="car-image">
+                                <img [src]="imageUrl(vehicle)" [alt]="vehicle.brand + ' ' + vehicle.model">
+                                <span class="car-badge">{{vehicle.categoryName}}</span>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="car-title">{{vehicle.brand}} {{vehicle.model}}</h4>
+                                <p class="text-muted mb-3">{{vehicle.description || vehicle.modelYear + ' model kiralık araç'}}</p>
+                                <div class="car-specs d-flex flex-wrap gap-3 text-muted mb-3">
+                                    <span><i class="bi bi-fuel-pump"></i>{{vehicle.fuelType}}</span>
+                                    <span><i class="bi bi-gear"></i>{{vehicle.transmission}}</span>
+                                    <span><i class="bi bi-people"></i>{{vehicle.seatCount}} kişi</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="price">
+                                        <span class="price-amount">{{vehicle.dailyPrice}}</span>
+                                        <span class="price-currency">₺ / gün</span>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" (click)="selectVehicle(vehicle)">Seç</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+}
+
+@if (selectedVehicle(); as vehicle) {
+<section id="reservationSummary" class="reservation-details py-5">
+    <div class="container">
+        <div class="reservation-info">
+            <div class="reservation-steps mb-4">
+                <button type="button" class="reservation-step completed" (click)="goBackToVehicles()">
+                    <span class="step-circle"><i class="bi bi-check-lg"></i></span>
+                    <span>Araç Seçimi</span>
+                </button>
+                <span class="step-divider"></span>
+                <button type="button"
+                    class="reservation-step"
+                    [class.completed]="activeReservationStep() > 2"
+                    [class.active]="activeReservationStep() === 2"
+                    (click)="goToReservationStep(2)">
+                    <span class="step-circle">2</span>
+                    <span>Güvence Paketleri</span>
+                </button>
+                <span class="step-divider"></span>
+                <button type="button"
+                    class="reservation-step"
+                    [class.active]="activeReservationStep() === 3"
+                    (click)="goToReservationStep(3)">
+                    <span class="step-circle">3</span>
+                    <span>Ücret & Ekstra</span>
+                </button>
+                <span class="step-divider"></span>
+                <button type="button"
+                    class="reservation-step"
+                    [class.active]="activeReservationStep() === 4"
+                    (click)="continueReservation()">
+                    <span class="step-circle">4</span>
+                    <span>Sürücü Detay</span>
+                </button>
+                <div class="reservation-total ms-lg-auto">
+                    <span>Toplam:</span>
+                    <strong>{{formatPrice(totalPrice())}}</strong>
+                </div>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-4">
+                    <img class="w-100 rounded" [src]="imageUrl(vehicle)" [alt]="vehicle.brand + ' ' + vehicle.model">
+                </div>
+                <div class="col-lg-8">
+                    <div class="reservation-detail-content">
+                        <span class="car-badge position-static d-inline-block mb-3">{{vehicle.categoryName}}</span>
+                        <h2 class="fw-bold mb-2">{{vehicle.brand}} {{vehicle.model}}</h2>
+                        <p class="text-muted mb-4">{{vehicle.modelYear}} model, {{vehicle.transmission}}, {{vehicle.fuelType}}</p>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <strong>Alış</strong>
+                                <div>{{pickUpDate()}} {{pickUpTime()}}</div>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Dönüş</strong>
+                                <div>{{deliveryDate()}} {{deliveryTime()}}</div>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Gün</strong>
+                                <div>{{totalDays()}} gün</div>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Toplam</strong>
+                                <div class="fs-4 fw-bold text-primary">{{formatPrice(totalPrice())}}</div>
+                            </div>
+                        </div>
+
+                        @if (reservationMessage()) {
+                            <div class="alert alert-success">{{reservationMessage()}}</div>
+                        }
+
+                        <button type="button" class="btn btn-primary btn-lg" (click)="continueReservation()">
+                            {{isLoggedIn() ? 'Rezervasyon Bilgilerini Onayla' : 'Giriş Yaparak Devam Et'}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-extra-layout mt-4" [hidden]="activeReservationStep() === 4 || showPayment()">
+                <div class="price-extra-main">
+                    <div class="price-extra-card" id="protectionPackagesArea" [hidden]="activeReservationStep() !== 2">
+                        <h5><i class="bi bi-shield-check text-primary me-2"></i>Güvence Paketleri</h5>
+                        <div class="row g-3 mt-2">
+                            @for (option of protectionPackages; track option.id) {
+                                <div class="col-xl-6 col-md-6">
+                                    <button type="button"
+                                        class="protection-card"
+                                        [class.recommended]="option.recommended"
+                                        [class.selected]="selectedProtectionId() === option.id"
+                                        (click)="selectProtection(option.id)">
+                                        @if (option.recommended) {
+                                            <span class="recommended-badge">Önerilen</span>
+                                        }
+                                        <span class="package-selector">
+                                            <span class="fake-radio" [class.checked]="selectedProtectionId() === option.id"></span>
+                                        </span>
+                                        <span class="protection-header">
+                                            <span class="package-title">{{option.name}}</span>
+                                            <span class="package-rating">
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-fill"></i>
+                                            </span>
+                                            <span class="package-price">
+                                                <span class="price-value">{{option.price === 0 ? '11.500 TL' : 'Muafiyetsiz'}}</span>
+                                                <span class="price-label">{{option.price === 0 ? 'Muafiyet' : 'Tam Koruma'}}</span>
+                                            </span>
+                                        </span>
+                                        <span class="protection-features">
+                                            @for (item of option.included ?? []; track item) {
+                                                <span class="feature-item included">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    <span>{{item}}</span>
+                                                    <i class="bi bi-info-circle"></i>
+                                                </span>
+                                            }
+                                            @for (item of option.excluded ?? []; track item) {
+                                                <span class="feature-item not-included">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    <span>{{item}}</span>
+                                                    <i class="bi bi-info-circle"></i>
+                                                </span>
+                                            }
+                                        </span>
+                                        <span class="protection-footer">
+                                            <span class="daily-price">{{option.price === 0 ? 'Dahil' : formatPrice(option.price) + ' / Gün'}}</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                        <div class="wizard-actions">
+                            <button type="button" class="btn btn-outline-secondary" (click)="goBackToVehicles()">
+                                <i class="bi bi-arrow-left me-2"></i>Geri
+                            </button>
+                            <button type="button" class="btn btn-primary" (click)="goToReservationStep(3)">
+                                İleri<i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="price-extra-card" id="priceExtraArea" [hidden]="activeReservationStep() !== 3">
+                        <h5><i class="bi bi-shield-plus text-primary me-2"></i>Önerilen Güvenceler</h5>
+                        <div class="row g-3 mt-2">
+                            @for (option of recommendedProtectionOptions; track option.id) {
+                                <div class="col-md-6">
+                                    <button type="button"
+                                        class="recommended-protection-card"
+                                        [class.selected]="selectedExtraIds().includes(option.id)"
+                                        (click)="toggleExtra(option)">
+                                        <span class="recommended-protection-content">
+                                            <span class="option-title">{{option.name}}</span>
+                                            <span class="option-description">{{option.description}}</span>
+                                        </span>
+                                        <span class="option-price">{{formatPrice(option.price)}} / Günlük</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="price-extra-card" [hidden]="activeReservationStep() !== 3">
+                        <h5><i class="bi bi-plus-circle text-primary me-2"></i>Ek Sürücü Paketi ve Ekstralar</h5>
+                        <div class="row g-3 mt-2">
+                            @for (option of extraOptions; track option.id) {
+                                <div class="col-md-6">
+                                    <button type="button"
+                                        class="option-card"
+                                        [class.selected]="selectedExtraIds().includes(option.id)"
+                                        (click)="toggleExtra(option)">
+                                        <span class="option-title">{{option.name}}</span>
+                                        <span class="option-description">{{option.description}}</span>
+                                        <span class="option-price">{{formatPrice(option.price)}} {{option.daily ? 'Günlük' : 'Kiralama Başı'}}</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="price-extra-card" [hidden]="activeReservationStep() !== 3">
+                        <h5><i class="bi bi-person-raised-hand text-primary me-2"></i>Koltuk Adaptörü</h5>
+                        <div class="row g-3 mt-2">
+                            @for (option of seatAdapterOptions; track option.id) {
+                                <div class="col-lg-4 col-md-6">
+                                    <button type="button"
+                                        class="option-card"
+                                        [class.selected]="selectedExtraIds().includes(option.id)"
+                                        (click)="toggleExtra(option)">
+                                        <span class="option-title">{{option.name}}</span>
+                                        <span class="option-description">{{option.description}}</span>
+                                        <span class="option-price">{{formatPrice(option.price)}} Günlük</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="wizard-actions" [hidden]="activeReservationStep() !== 3">
+                        <button type="button" class="btn btn-outline-secondary" (click)="goToReservationStep(2)">
+                            <i class="bi bi-arrow-left me-2"></i>Geri
+                        </button>
+                        <button type="button" class="btn btn-primary" (click)="continueReservation()">
+                            İleri<i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <aside class="price-summary-card">
+                    <img [src]="imageUrl(vehicle)" [alt]="vehicle.brand + ' ' + vehicle.model">
+                    <h5>{{vehicle.brand}} {{vehicle.model}}</h5>
+                    <p>{{vehicle.categoryName}} | {{vehicle.transmission}}</p>
+                    <div class="summary-line">
+                        <span>Araç Kiralama</span>
+                        <strong>{{formatPrice(vehicleTotal())}}</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Güvence Paketi</span>
+                        <strong>{{formatPrice(selectedProtectionTotal())}}</strong>
+                    </div>
+                    <div class="summary-line">
+                        <span>Ekstralar</span>
+                        <strong>{{formatPrice(extrasTotal())}}</strong>
+                    </div>
+                    <div class="summary-total">
+                        <span>TOPLAM ÖDEME</span>
+                        <strong>{{formatPrice(totalPrice())}}</strong>
+                    </div>
+                </aside>
+            </div>
+
+            <div id="driverDetailsArea" class="driver-detail-panel mt-4" [hidden]="activeReservationStep() !== 4 || showPayment()">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1"><i class="bi bi-person-vcard text-primary me-2"></i>Sürücü Detay</h4>
+                        <p class="text-muted mb-0">Profil bilgileriniz otomatik aktarılır; gerekirse bu rezervasyon için düzenleyebilirsiniz.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="fillDriverFromProfile()" [disabled]="driverProfileLoading()">
+                            @if (driverProfileLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            Profil Bilgilerini Kullan
+                        </button>
+                        <span class="driver-step-badge">4. Adım</span>
+                    </div>
+                </div>
+
+                @if (driverProfileMessage()) {
+                    <div class="alert alert-info py-2 mb-3">{{driverProfileMessage()}}</div>
+                }
+
+                <form class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Ad</label>
+                        <input type="text" class="form-control" placeholder="Adınız"
+                            [ngModel]="driverDetail().firstName" (ngModelChange)="updateDriverDetail('firstName', $event)" name="driverFirstName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Soyad</label>
+                        <input type="text" class="form-control" placeholder="Soyadınız"
+                            [ngModel]="driverDetail().lastName" (ngModelChange)="updateDriverDetail('lastName', $event)" name="driverLastName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">TC Kimlik No</label>
+                        <input type="text" class="form-control" placeholder="11 haneli TC kimlik no" maxlength="11" inputmode="numeric"
+                            [ngModel]="driverDetail().identityNumber" (ngModelChange)="updateDriverDetail('identityNumber', $event)" name="driverIdentity">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Doğum Tarihi</label>
+                        <input type="date" class="form-control" [min]="minBirthDate" [max]="maxBirthDate"
+                            [ngModel]="driverDetail().birthDate" (ngModelChange)="updateDriverDetail('birthDate', $event)" name="driverBirthDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Telefon</label>
+                        <input type="tel" class="form-control" placeholder="5XX XXX XX XX"
+                            [ngModel]="driverDetail().phone" (ngModelChange)="updateDriverDetail('phone', $event)" name="driverPhone">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">E-posta</label>
+                        <input type="email" class="form-control" placeholder="ornek@mail.com"
+                            [ngModel]="driverDetail().email" (ngModelChange)="updateDriverDetail('email', $event)" name="driverEmail">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ehliyet No</label>
+                        <input type="text" class="form-control" placeholder="Ehliyet numarası"
+                            [ngModel]="driverDetail().licenseNumber" (ngModelChange)="updateDriverDetail('licenseNumber', $event)" name="driverLicenseNumber">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ehliyet Alış Yılı</label>
+                        <input type="number" class="form-control" placeholder="2020" [min]="earliestLicenseYear()" [max]="currentYear"
+                            [ngModel]="driverDetail().licenseYear" (ngModelChange)="updateDriverDetail('licenseYear', $event)" name="driverLicenseYear">
+                        <small class="text-muted">Doğum yılına göre en erken {{earliestLicenseYear()}}, en geç {{currentYear}} olabilir.</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Adres</label>
+                        <textarea class="form-control" rows="3" placeholder="Sürücü adresi"
+                            [ngModel]="driverDetail().address" (ngModelChange)="updateDriverDetail('address', $event)" name="driverAddress"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="wizard-actions">
+                            <button type="button" class="btn btn-outline-secondary" (click)="goToReservationStep(3)">
+                                <i class="bi bi-arrow-left me-2"></i>Geri
+                            </button>
+                        <button type="button" class="btn btn-primary btn-lg" (click)="continueToPayment()">
+                            Ödeme Bilgilerine Geç
+                        </button>
+                        </div>
+                    </div>
+                </form>
+
+                @if (paymentMessage() && !showPayment()) {
+                    <div class="alert alert-warning mt-4">{{paymentMessage()}}</div>
+                }
+            </div>
+
+            @if (showPayment()) {
+                <div id="paymentArea" class="payment-panel mt-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-1">Ödeme Bilgileri</h4>
+                            <p class="text-muted mb-0">Rezervasyonu tamamlamak için kart bilgilerinizi girin.</p>
+                            <small class="text-muted">Test kartı: 4111 1111 1111 1111</small>
+                        </div>
+                        <div class="fs-4 fw-bold text-primary">{{formatPrice(totalPrice())}}</div>
+                    </div>
+
+                    <form class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kart Üzerindeki İsim</label>
+                            <input type="text" class="form-control" placeholder="Ad Soyad"
+                                [ngModel]="payment().owner" (ngModelChange)="updatePayment('owner', $event)" name="owner">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kart Numarası</label>
+                            <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric"
+                                [ngModel]="payment().cartNumber" (ngModelChange)="updateCardNumber($event)" name="cartNumber">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Son Kullanma Tarihi (AA/YY)</label>
+                            <input type="text" class="form-control" placeholder="AA/YY" maxlength="5" inputmode="numeric"
+                                [ngModel]="payment().expiry" (ngModelChange)="updateExpiry($event)" name="expiry">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">CCV</label>
+                            <input type="password" class="form-control" placeholder="000" maxlength="3" inputmode="numeric"
+                                [ngModel]="payment().ccv" (ngModelChange)="updateCcv($event)" name="ccv">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary w-100" (click)="completePayment()" [disabled]="paymentProcessing()">
+                                {{paymentProcessing() ? 'Rezervasyon Oluşturuluyor...' : 'Ödemeyi Tamamla'}}
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-secondary" (click)="goToReservationStep(4)">
+                                <i class="bi bi-arrow-left me-2"></i>Sürücü Detaya Geri Dön
+                            </button>
+                        </div>
+                    </form>
+
+                    @if (paymentMessage()) {
+                        <div class="alert mt-4" [class.alert-success]="paymentSuccessful()" [class.alert-warning]="!paymentSuccessful()">
+                            {{paymentMessage()}}
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+}
+
 <!-- Features -->
-<section id="features" class="features-section py-5 bg-light">
+<section id="features" class="features-section py-5 bg-light" [hidden]="selectedVehicle()">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Neden Bizi Seçmelisiniz?</h2>

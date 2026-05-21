@@ -12,14 +12,14 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label>Adı (*)</label>
+                    <label>Ad&#305; (*)</label>
                    <input
                       type="text"
                       class="form-control"
                       [(ngModel)]="data().firstName"
                       name="firstName"
                       required>
-                    <div class="invalid-feedback">Geçerli bir ad girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir ad girin</div>
                 </div>
 
                 <div class="form-group mt-2">
@@ -30,18 +30,18 @@
                       [(ngModel)]="data().lastName"
                       name="lastName"
                       required>
-                    <div class="invalid-feedback">Geçerli bir soyad girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir soyad girin</div>
                 </div>
 
                  <div class="form-group mt-2">
-                    <label>Kullanıcı Adı (*)</label>
+                    <label>Kullan&#305;c&#305; Ad&#305; (*)</label>
                    <input
                       type="text"
                       class="form-control"
                       [(ngModel)]="data().userName"
                       name="userName"
                       required>
-                    <div class="invalid-feedback">Geçerli bir kullanıcı adı girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir kullan&#305;c&#305; ad&#305; girin</div>
                 </div>
 
                 <div class="form-group mt-2">
@@ -52,19 +52,19 @@
                       [(ngModel)]="data().email"
                       name="email"
                       required>
-                    <div class="invalid-feedback">Geçerli bir mail adresi girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir mail adresi girin</div>
                 </div>
             </div>
         </div>
 
         <div class="admin-card">
             <div class="card-header">
-                <h6><i class="bi bi-info-circle text-primary me-2"></i>Yetki Bilgileri</h6>
+                <h6><i class="bi bi-key text-warning me-2"></i>Yetki Bilgileri</h6>
             </div>
             <div class="card-body" style="height: 350px;">
                 @if(checkIsAdmin()){
                     <div class="form-group">
-                       <label>Şube (*)</label>
+                       <label>&#350;ube (*)</label>
                        <flexi-select
                          [data]="branches()"
                          label="name"

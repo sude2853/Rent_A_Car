@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using GenericRepository;
 using RentCarServer.Application.Services;
+using RentCarServer.Domain.Customers;
 using RentCarServer.Domain.Users;
 using TS.MediatR;
 using TS.Result;
@@ -27,19 +28,36 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 
 public sealed class LoginCommandHandler(
     IUserRepository userRepository,
+    ICustomerRepository customerRepository,
     IMailService mailService,
     IUnitOfWork unitOfWork,
     IJwtProvider jwtProvider) : IRequestHandler<LoginCommand, Result<LoginCommandResponse>>
 {
     public async Task<Result<LoginCommandResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
+        var emailOrUserName = request.EmailOrUserName.Trim();
+        var normalizedLogin = emailOrUserName.ToLower();
+
         var user = await userRepository.FirstOrDefaultAsync(p =>
-            p.Email.Value == request.EmailOrUserName
-            || p.UserName.Value == request.EmailOrUserName);
+            p.Email.Value.ToLower() == normalizedLogin
+            || p.UserName.Value.ToLower() == normalizedLogin);
 
         if (user is null)
         {
-            return Result<LoginCommandResponse>.Failure("Kullanıcı adı ya da şifre yanlış");
+            var customer = await customerRepository.FirstOrDefaultAsync(p =>
+                p.Email.Value.ToLower() == normalizedLogin
+                || p.IdentityNumber.Value.ToLower() == normalizedLogin
+                || p.PhoneNumber.Value == emailOrUserName
+                || p.FirstName.Value.ToLower() == normalizedLogin
+                || p.FullName.Value.ToLower() == normalizedLogin);
+
+            if (customer is null || !customer.VerifyPasswordHash(request.Password))
+            {
+                return Result<LoginCommandResponse>.Failure("Kullanıcı adı ya da şifre yanlış");
+            }
+
+            var customerToken = await jwtProvider.CreateTokenAsync(customer, cancellationToken);
+            return new LoginCommandResponse() { Token = customerToken };
         }
 
         var checkPassword = user.VerifyPasswordHash(request.Password);
@@ -73,3 +91,5 @@ public sealed class LoginCommandHandler(
         }
     }
 }
+
+

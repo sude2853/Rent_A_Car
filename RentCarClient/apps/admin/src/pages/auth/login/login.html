@@ -10,6 +10,10 @@
                         <h1>RentCar</h1>
                         <span class="admin-label">Admin Panel</span>
                     </div>
+                    <a class="admin-home-link" href="http://127.0.0.1:4200/">
+                        <i class="bi bi-arrow-left"></i>
+                        Ana siteye d&#246;n
+                    </a>
                     <h2>Hoş Geldiniz</h2>
                     <p>Admin paneline erişim için giriş yapın</p>
                 </div>
@@ -28,7 +32,8 @@
                                   class="form-control"
                                   id="adminEmail"
                                   name="emailOrUserName"
-                                  [(ngModel)]="emailOrUserName"
+                                  [ngModel]="emailOrUserName()"
+                                  (ngModelChange)="updateEmailOrUserName($event)"
                                   placeholder="admin@rentcar.com"
                                   required>
                             </div>
@@ -46,7 +51,8 @@
                                   class="form-control"
                                   id="adminPassword"
                                   name="password"
-                                  ngModel
+                                  [ngModel]="password()"
+                                  (ngModelChange)="updatePassword($event)"
                                   placeholder="******"
                                   #passwordEl
                                   required>
@@ -74,6 +80,10 @@
                             </a>
                         </div>
     
+                        @if(errorMessage()){
+                            <div class="alert alert-danger py-2 mb-3">{{errorMessage()}}</div>
+                        }
+
                         <!-- Login Button -->
                         <button type="submit" class="btn btn-admin-primary w-100" [disabled]="loading()">
                             @if(loading()){

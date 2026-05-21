@@ -26,12 +26,12 @@ public static class SeedDataModule
 
                 List<Category> newCategories = new()
                 {
-                    new(new Name("Binek"), true),
-                    new(new Name("Station Wagon"), true),
-                    new(new Name("Minibüs"), true),
-                    new(new Name("SUV"), true),
-                    new(new Name("Üstü Açık"), true),
-                    new(new Name("MPV"), true)
+                    new(new Name("Binek Araç"), true),
+                    new(new Name("Station Wagon Araç"), true),
+                    new(new Name("Minibüs Araç"), true),
+                    new(new Name("SUV Araç"), true),
+                    new(new Name("Üstü Açık Araç"), true),
+                    new(new Name("MPV Araç"), true)
                 };
 
                 var list = newCategories.Where(p => !categoryNames.Contains(p.Name.Value)).ToList();
@@ -133,26 +133,41 @@ public static class SeedDataModule
             async (
                 IVehicleRepository vehicleRepository,
                 ICategoryRepository categoryRepository,
+                RentCarServer.Domain.Branches.IBranchRepository branchRepository,
                 IUnitOfWork unitOfWork,
                 CancellationToken cancellationToken) =>
             {
-                var branchId = Guid.Parse("0197de0b-7613-7846-af49-b5a2cc121576");
+                var branch = await branchRepository.GetAll().FirstOrDefaultAsync(cancellationToken);
+                if (branch is null)
+                {
+                    return Results.InternalServerError(Result<string>.Failure("Araç seed için önce şube oluşturulmalıdır."));
+                }
+                var branchId = branch.Id.Value;
                 var existingPlates = await vehicleRepository.GetAll().Select(v => v.Plate.Value).ToListAsync(cancellationToken);
                 var categories = await categoryRepository.GetAll().ToListAsync(cancellationToken);
 
-                var imageUrls = new[]
+                var modelImages = new Dictionary<string, string>
                 {
-                    "citroen-c3.jpg",
-                    "fiat-egea-sedan.jpg",
-                    "fiat-fiorino.jpg",
-                    "renault-clio.jpg",
-                    "hyundai-bayon.jpg",
-                    "renault-megane-sedan.jpg",
-                    "suzuki-vitara.jpg"
+                    ["C3"] = "citroen-c3.jpg",
+                    ["Egea"] = "fiat-egea-sedan.jpg",
+                    ["Fiorino"] = "fiat-fiorino.jpg",
+                    ["Clio"] = "renault-clio.jpg",
+                    ["Bayon"] = "hyundai-bayon.jpg",
+                    ["Megane"] = "renault-megane-sedan.jpg",
+                    ["Vitara"] = "suzuki-vitara.jpg"
                 };
 
-                var brands = new[] { "Toyota", "Volkswagen", "Renault", "Ford", "Hundai", "Peugeot", "Opel", "Honda", "BMW" };
-                var models = new[] { "C3", "Egea", "Fiorino", "Clio", "Bayon", "Megane", "Vitara" };
+                var modelBrands = new Dictionary<string, string>
+                {
+                    ["C3"] = "Citroen",
+                    ["Egea"] = "Fiat",
+                    ["Fiorino"] = "Fiat",
+                    ["Clio"] = "Renault",
+                    ["Bayon"] = "Hyundai",
+                    ["Megane"] = "Renault",
+                    ["Vitara"] = "Suzuki"
+                };
+                var models = modelImages.Keys.ToArray();
                 var allFeatures = new[]
                 {
                     "Airbag", "ABS", "ESP", "Alarm Sistemi",
@@ -162,7 +177,6 @@ public static class SeedDataModule
                 };
                 var vehicles = new List<Vehicle>();
                 var random = new Random();
-                int imageIndex = 0;
 
                 foreach (var category in categories)
                 {
@@ -171,8 +185,8 @@ public static class SeedDataModule
                         var featureCount = new Random().Next(4, 9); // 4-8 arası özellik
                         var selectedFeatures = allFeatures.OrderBy(_ => new Random().Next()).Take(featureCount).ToList();
                         var features = selectedFeatures.Select(f => new Feature(f)).ToList();
-                        var brand = brands[random.Next(brands.Length)];
                         var model = models[random.Next(models.Length)];
+                        var brand = modelBrands[model];
                         var plate = $"34{brand[..2].ToUpper()}{category.Name.Value[..1].ToUpper()}{i + 1}";
 
                         if (existingPlates.Contains(plate))
@@ -180,7 +194,7 @@ public static class SeedDataModule
 
                         var vehicle = new Vehicle(
                             new Brand(brand),
-                            new Model($"{model} {category.Name.Value[..2].ToUpper()}"),
+                            new Model(model),
                             new ModelYear(2022 + i % 2),
                             new Color("Gri"),
                             new Plate(plate),
@@ -189,7 +203,7 @@ public static class SeedDataModule
                             new VinNumber($"VIN{category.Name.Value[..1].ToUpper()}{i}{Guid.NewGuid():N}".Substring(0, 16)),
                             new EngineNumber($"ENG{i}{Guid.NewGuid():N}".Substring(0, 12)),
                             new Description($"{brand} {model} açıklaması"),
-                            new ImageUrl(imageUrls[imageIndex++ % imageUrls.Length]),
+                            new ImageUrl(modelImages[model]),
                             new FuelType(i % 2 == 0 ? "Benzin" : "Dizel"),
                             new Transmission(i % 2 == 0 ? "Otomatik" : "Manuel"),
                             new EngineVolume(1.4m + i * 0.1m),
@@ -198,7 +212,17 @@ public static class SeedDataModule
                             new FuelConsumption(5.5m + i * 0.3m),
                             new SeatCount(5),
                             new Kilometer(10000 + i * 3000),
-                            new DailyPrice(1800 + i * 50),
+                            new DailyPrice(model switch
+                            {
+                                "C3" => 6000 + i * 250,
+                                "Clio" => 6250 + i * 250,
+                                "Egea" => 6500 + i * 275,
+                                "Bayon" => 7250 + i * 300,
+                                "Fiorino" => 7000 + i * 275,
+                                "Megane" => 8000 + i * 350,
+                                "Vitara" => 8750 + i * 300,
+                                _ => 6500 + i * 250
+                            }),
                             new WeeklyDiscountRate(10),
                             new MonthlyDiscountRate(15),
                             new InsuranceType("Kasko & Sigorta"),

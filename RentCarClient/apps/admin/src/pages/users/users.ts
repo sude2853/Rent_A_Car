@@ -14,9 +14,9 @@ import { Common } from '../../services/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class Users {
-readonly bredcrumbs = signal<BreadcrumbModel[]>([
+  readonly bredcrumbs = signal<BreadcrumbModel[]>([
     {
-      title: 'Kullanıcılar',
+      title: 'Kullan\u0131c\u0131lar',
       icon: 'bi-people',
       url: '/users',
       isActive: true

@@ -10,5 +10,11 @@ internal sealed class BranchGetAllQueryHandler(
     IBranchRepository branchRepository) : IRequestHandler<BranchGetAllQuery, IQueryable<BranchDto>>
 {
     public Task<IQueryable<BranchDto>> Handle(BranchGetAllQuery request, CancellationToken cancellationToken) =>
-        Task.FromResult(branchRepository.GetAllWithAudit().MapTo().AsQueryable());
+        Task.FromResult(branchRepository.GetAll()
+            .Select(branch => new RentCarServer.Domain.Abstractions.EntityWithAuditDto<Branch>
+            {
+                Entity = branch
+            })
+            .MapTo()
+            .AsQueryable());
 }

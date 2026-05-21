@@ -1,0 +1,260 @@
+﻿<section class="profile-main py-4">
+    <div class="container">
+        @if (loading()) {
+            <div class="reservations-state">
+                <div class="spinner-border text-primary" role="status"></div>
+                <span>Profil bilgileriniz yükleniyor...</span>
+            </div>
+        } @else if (message()) {
+            <div class="alert alert-warning profile-alert">
+                {{message()}}
+                <a routerLink="/login" class="ms-2">Giriş yap</a>
+            </div>
+        } @else {
+            <div class="row g-4">
+                <aside class="col-lg-3">
+                    <div class="profile-sidebar">
+                        <div class="sidebar-card user-info">
+                            <div class="user-avatar-large">
+                                @if (avatarImage()) {
+                                    <img class="profile-avatar-photo" [src]="avatarImage()" alt="Profil fotoğrafı">
+                                } @else {
+                                    <div class="profile-avatar-placeholder">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                }
+
+                                <label class="avatar-upload" for="avatarInput" aria-label="Profil fotoğrafı seç">
+                                    <i class="bi bi-camera-fill"></i>
+                                </label>
+                                <input id="avatarInput" class="visually-hidden" type="file" accept="image/*" (change)="onAvatarSelected($event)">
+                            </div>
+
+                            <div class="avatar-actions">
+                                <label class="btn btn-sm btn-outline-primary mb-0" for="avatarInput">Fotoğraf Seç</label>
+                                @if (avatarImage()) {
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeAvatar()">Kaldır</button>
+                                }
+                            </div>
+                            @if (avatarMessage()) {
+                                <small class="avatar-message">{{avatarMessage()}}</small>
+                            }
+
+                            <div class="user-details">
+                                <h4>{{fullName()}}</h4>
+                                <p>{{email()}}</p>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-card profile-nav">
+                            <div class="profile-menu">
+                                <button type="button" class="menu-item" [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">
+                                    <i class="bi bi-person-fill"></i>
+                                    <span>Profil Bilgileri</span>
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                                <button type="button" class="menu-item" [class.active]="activeTab() === 'history'" (click)="setTab('history')">
+                                    <i class="bi bi-clock-history"></i>
+                                    <span>Kiralama Geçmişi</span>
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="col-lg-9">
+                    <div class="profile-content">
+                        @if (activeTab() === 'profile') {
+                            <div class="content-header profile-content-header">
+                                <div>
+                                    <h3><i class="bi bi-person-fill text-primary me-2"></i>Profil Bilgileri</h3>
+                                    <p>Kişisel bilgilerinizi güncel tutarak daha iyi hizmet alabilirsiniz.</p>
+                                </div>
+                                @if (!editing()) {
+                                    <button type="button" class="btn btn-primary" (click)="startEdit()">
+                                        <i class="bi bi-pencil-square me-2"></i>Düzenle
+                                    </button>
+                                }
+                            </div>
+
+                            @if (editModel(); as profile) {
+                                <form class="profile-form" (ngSubmit)="saveProfile()">
+                                    @if (formMessage()) {
+                                        <div class="alert alert-warning profile-form-alert">{{formMessage()}}</div>
+                                    }
+                                    @if (formSuccess()) {
+                                        <div class="alert alert-success profile-form-alert">{{formSuccess()}}</div>
+                                    }
+
+                                    <div class="form-section">
+                                        <div class="section-header">
+                                            <h5><i class="bi bi-person-circle text-primary me-2"></i>Kişisel Bilgiler</h5>
+                                            <small>Temel kişisel bilgileriniz</small>
+                                        </div>
+                                        <div class="section-content">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Ad *</label>
+                                                    <input class="form-control" [ngModel]="profile.firstName" (ngModelChange)="updateField('firstName', $event)" name="firstName" [readonly]="!editing()" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Soyad *</label>
+                                                    <input class="form-control" [ngModel]="profile.lastName" (ngModelChange)="updateField('lastName', $event)" name="lastName" [readonly]="!editing()" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">T.C. Kimlik Numarası *</label>
+                                                    <input class="form-control" [ngModel]="maskIdentity(profile.identityNumber)" (ngModelChange)="updateField('identityNumber', $event)" name="identityNumber" [readonly]="!editing()" maxlength="11" required>
+                                                    <div class="form-text">Düzenleme kapalıyken güvenlik için gizlenir.</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Doğum Tarihi *</label>
+                                                    <input type="date" class="form-control" [ngModel]="profile.dateOfBirth" (ngModelChange)="updateField('dateOfBirth', $event)" name="dateOfBirth" [readonly]="!editing()" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Ehliyet Alış Tarihi *</label>
+                                                    <input type="date" class="form-control" [ngModel]="profile.drivingLicenseIssuanceDate" (ngModelChange)="updateField('drivingLicenseIssuanceDate', $event)" name="drivingLicenseIssuanceDate" [readonly]="!editing()" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Uyruk</label>
+                                                    <input class="form-control" value="Türkiye Cumhuriyeti" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section">
+                                        <div class="section-header">
+                                            <h5><i class="bi bi-telephone-fill text-primary me-2"></i>İletişim Bilgileri</h5>
+                                            <small>Size ulaşabilmemiz için kayıtlı iletişim bilgileriniz</small>
+                                        </div>
+                                        <div class="section-content">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">E-posta Adresi *</label>
+                                                    <input type="email" class="form-control" [ngModel]="profile.email" (ngModelChange)="updateField('email', $event)" name="email" [readonly]="!editing()" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Telefon Numarası *</label>
+                                                    <input class="form-control" [ngModel]="profile.phoneNumber" (ngModelChange)="updateField('phoneNumber', $event)" name="phoneNumber" [readonly]="!editing()" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section">
+                                        <div class="section-header">
+                                            <h5><i class="bi bi-geo-alt-fill text-primary me-2"></i>Adres Bilgileri</h5>
+                                            <small>Fatura ve iletişim için kayıtlı adresiniz</small>
+                                        </div>
+                                        <div class="section-content">
+                                            <label class="form-label">Adres *</label>
+                                            <textarea class="form-control" rows="3" [ngModel]="profile.fullAddress" (ngModelChange)="updateField('fullAddress', $event)" name="fullAddress" [readonly]="!editing()" required></textarea>
+                                        </div>
+                                    </div>
+
+                                    @if (editing()) {
+                                        <div class="form-actions d-flex justify-content-between align-items-center">
+                                            <div class="form-info">
+                                                <small>Kaydettiğiniz bilgiler veritabanındaki müşteri kaydınızı günceller.</small>
+                                            </div>
+                                            <div class="action-buttons">
+                                                <button type="button" class="btn btn-outline-secondary me-2" (click)="cancelEdit()" [disabled]="saving()">Vazgeç</button>
+                                                <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                                                    @if (saving()) {
+                                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                                    }
+                                                    Kaydet
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </form>
+                            }
+                        } @else {
+                            <div class="content-header">
+                                <h3><i class="bi bi-clock-history text-primary me-2"></i>Kiralama Geçmişi</h3>
+                                <p>Geçmiş kiralama işlemlerinizi görüntüleyin ve yönetin.</p>
+                            </div>
+
+                            <div class="rental-history-content">
+                                <div class="history-stats">
+                                    <div class="history-stat-card">
+                                        <i class="bi bi-car-front-fill"></i>
+                                        <strong>{{reservations().length}}</strong>
+                                        <span>Toplam</span>
+                                    </div>
+                                    <div class="history-stat-card">
+                                        <i class="bi bi-calendar-check-fill"></i>
+                                        <strong>{{totalDays()}}</strong>
+                                        <span>Toplam Gün</span>
+                                    </div>
+                                    <div class="history-stat-card">
+                                        <i class="bi bi-cash-stack"></i>
+                                        <strong>{{formatPrice(totalSpent())}}</strong>
+                                        <span>Toplam</span>
+                                    </div>
+                                    <div class="history-stat-card">
+                                        <i class="bi bi-star-fill"></i>
+                                        <strong>{{loyaltyPoints()}}</strong>
+                                        <span>Puan</span>
+                                    </div>
+                                </div>
+
+                                <div class="history-filter-bar">
+                                    <select class="form-select" [ngModel]="historyStatus()" (ngModelChange)="updateStatus($event)">
+                                        <option value="all">Tüm Durumlar</option>
+                                        <option value="pending">Beklemede</option>
+                                        <option value="completed">Teslim Al&#305;nd&#305;</option>
+                                        <option value="delivered">Teslim Edildi</option>
+                                        <option value="cancelled">İptal Edildi</option>
+                                    </select>
+                                    <div class="history-search">
+                                        <i class="bi bi-search"></i>
+                                        <input class="form-control" placeholder="Araç modeli, rezervasyon no" [ngModel]="historySearch()" (ngModelChange)="updateSearch($event)">
+                                    </div>
+                                </div>
+
+                                @if (filteredReservations().length === 0) {
+                                    <div class="reservations-empty compact">
+                                        <i class="bi bi-calendar2-x"></i>
+                                        <h3>Kiralama geçmişi bulunamadı</h3>
+                                        <p>Rezervasyon yaptığınızda geçmişiniz burada görünecek.</p>
+                                    </div>
+                                } @else {
+                                    <div class="history-list">
+                                        @for (reservation of filteredReservations(); track reservation.id) {
+                                            <article class="history-card">
+                                                <img [src]="imageUrl(reservation)" [alt]="reservation.vehicle.brand + ' ' + reservation.vehicle.model">
+                                                <div class="history-card-body">
+                                                    <div class="history-card-title">
+                                                        <h4>{{reservation.vehicle.brand}} {{reservation.vehicle.model}}</h4>
+                                                        <span class="history-status" [ngClass]="statusClass(reservation.status)">{{statusText(reservation.status)}}</span>
+                                                    </div>
+                                                    <div class="history-meta">
+                                                        <span><i class="bi bi-calendar-event"></i>{{formatDate(reservation.pickUpDate)}} - {{formatDate(reservation.deliveryDate)}}</span>
+                                                        <span><i class="bi bi-hash"></i>{{reservation.reservationNumber}}</span>
+                                                        <span><i class="bi bi-car-front-fill"></i>{{reservation.vehicle.categoryName}}</span>
+                                                        <span><i class="bi bi-shield-check"></i>{{reservation.protectionPackageName}}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="history-price">
+                                                    <strong>{{formatPrice(reservation.total)}}</strong>
+                                                    <span>{{reservation.totalDay}} gün</span>
+                                                </div>
+                                            </article>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+
+
+

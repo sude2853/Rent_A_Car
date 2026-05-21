@@ -13,7 +13,7 @@ public static class RoleExtensions
 {
     public static IQueryable<RoleDto> MapTo(this IQueryable<EntityWithAuditDto<Role>> entites)
     {
-        var res = entites.Select(s => new RoleDto
+        var res = entites.AsEnumerable().Select(s => new RoleDto
         {
             Id = s.Entity.Id,
             Name = s.Entity.Name.Value,
@@ -21,7 +21,7 @@ public static class RoleExtensions
             IsActive = s.Entity.IsActive,
             CreatedAt = s.Entity.CreatedAt,
             CreatedBy = s.Entity.CreatedBy,
-            CreatedFullName = s.CreatedUser.FullName.Value,
+            CreatedFullName = s.CreatedUser == null ? string.Empty : s.CreatedUser.FullName.Value,
             UpdatedAt = s.Entity.UpdatedAt,
             UpdatedBy = s.Entity.UpdatedBy != null ? s.Entity.UpdatedBy.Value : null,
             UpdatedFullName = s.UpdatedUser != null ? s.UpdatedUser.FullName.Value : null,
@@ -32,7 +32,7 @@ public static class RoleExtensions
 
     public static IQueryable<RoleDto> MapToGet(this IQueryable<EntityWithAuditDto<Role>> entites)
     {
-        var res = entites.Select(s => new RoleDto
+        var res = entites.AsEnumerable().Select(s => new RoleDto
         {
             Id = s.Entity.Id,
             Name = s.Entity.Name.Value,
@@ -41,7 +41,7 @@ public static class RoleExtensions
             IsActive = s.Entity.IsActive,
             CreatedAt = s.Entity.CreatedAt,
             CreatedBy = s.Entity.CreatedBy,
-            CreatedFullName = s.CreatedUser.FullName.Value,
+            CreatedFullName = s.CreatedUser == null ? string.Empty : s.CreatedUser.FullName.Value,
             UpdatedAt = s.Entity.UpdatedAt,
             UpdatedBy = s.Entity.UpdatedBy != null ? s.Entity.UpdatedBy.Value : null,
             UpdatedFullName = s.UpdatedUser != null ? s.UpdatedUser.FullName.Value : null,

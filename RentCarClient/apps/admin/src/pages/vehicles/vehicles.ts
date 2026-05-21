@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { FlexiGridFilterDataModel, FlexiGridModule } from 'flexi-grid';
 import Grid from '../../components/grid/grid';
 import { BreadcrumbModel } from '../../services/breadcrumb';
@@ -48,3 +48,4 @@ export default class Vehicles {
     return this.#common.checkPermission(permission);
   }
 }
+

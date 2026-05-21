@@ -52,7 +52,7 @@
                     alt="Admin">
             </div>
             <div class="user-details">
-                <span class="user-name">{{decode().fullName}}</span>
+                <span class="user-name">{{displayName()}}</span>
                 <span class="user-role">{{decode().branch}}</span>
             </div>
         </div>
@@ -134,7 +134,7 @@
                     <button class="profile-btn" data-bs-toggle="dropdown">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNBRW6kw4PvewS5EGHKY7nNsJiWvrbsVIzZA&s"
                             alt="Profile" class="profile-avatar">
-                        <span class="layout-profile-name">{{decode().fullName}}</span>
+                        <span class="layout-profile-name">{{displayName()}}</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <ul class="dropdown-menu profile-menu">
@@ -143,7 +143,7 @@
                                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNBRW6kw4PvewS5EGHKY7nNsJiWvrbsVIzZA&s"
                                     alt="Profile">
                                 <div>
-                                    <h6>{{decode().fullName}}</h6>
+                                    <h6>{{displayName()}}</h6>
                                     <p>{{decode().email}}</p>
                                     <span class="role-badge">{{decode().role}}</span>
                                 </div>

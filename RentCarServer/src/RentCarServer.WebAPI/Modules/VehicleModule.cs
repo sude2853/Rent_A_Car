@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RentCarServer.Application.Vehicles;
 using TS.MediatR;
 using TS.Result;
@@ -9,6 +9,15 @@ public static class VehicleModule
 {
     public static void MapVehicle(this IEndpointRouteBuilder builder)
     {
+        builder.MapGet("/vehicles/public",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new VehiclePublicGetAllQuery(), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.InternalServerError(res);
+            })
+            .AllowAnonymous()
+            .Produces<Result<List<VehicleDto>>>()
+            .WithTags("Vehicles");
         var app = builder
             .MapGroup("/vehicles")
             .RequireRateLimiting("fixed")

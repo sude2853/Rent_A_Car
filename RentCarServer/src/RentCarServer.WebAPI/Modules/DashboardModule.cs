@@ -21,5 +21,13 @@ public static class DashboardModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.InternalServerError(res);
             })
             .Produces<Result<int>>();
+
+        app.MapGet("summary",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new DashboardSummaryQuery(), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.InternalServerError(res);
+            })
+            .Produces<Result<DashboardSummaryDto>>();
     }
 }

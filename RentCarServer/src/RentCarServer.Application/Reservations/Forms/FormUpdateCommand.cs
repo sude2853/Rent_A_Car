@@ -34,6 +34,7 @@ internal sealed class FormUpdateCommandHandler(
 
         Kilometer kilometer = new(request.Kilometer);
         List<Supplies> supplies = request.Supplies?.Select(s => new Supplies(s)).ToList() ?? [];
+        Directory.CreateDirectory("wwwroot/forms/");
         List<ImageUrl> imageUrls = request.Files.Select(s =>
         {
             var fileName = FileService.FileSaveToServer(s, "wwwroot/forms/");

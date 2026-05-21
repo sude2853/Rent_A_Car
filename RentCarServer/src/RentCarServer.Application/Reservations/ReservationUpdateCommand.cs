@@ -37,13 +37,14 @@ public sealed class ReservationUpdateCommandValidator : AbstractValidator<Reserv
 {
     public ReservationUpdateCommandValidator()
     {
-        RuleFor(x => x.PickUpDate)
-            .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today))
-            .WithMessage("Teslim alma tarihi bugünden önce olamaz.");
+        RuleFor(x => x.CustomerId)
+            .NotEmpty()
+            .WithMessage("Müşteri seçmelisiniz.");
 
-        RuleFor(x => x.DeliveryDate)
-            .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today))
-            .WithMessage("Teslim etme tarihi bugünden önce olamaz.");
+        RuleFor(x => x.VehicleId)
+            .NotEmpty()
+            .WithMessage("Araç seçmelisiniz.");
+
     }
 }
 
@@ -70,6 +71,13 @@ internal sealed class ReservationUpdateCommandHandler(
         }
 
         var locationId = request.PickUpLocationId ?? claimContext.GetBranchId();
+        var requestedPickUp = request.PickUpDate.ToDateTime(request.PickUpTime);
+        var requestedDelivery = request.DeliveryDate.ToDateTime(request.DeliveryTime);
+
+        if (requestedDelivery <= requestedPickUp)
+        {
+            return Result<string>.Failure("Teslim tarihi, alış tarihinden sonra olmalıdır.");
+        }
 
         #region Şube, Müşteri ve Araç Kontrolü
         if (reservation.PickUpLocationId.Value != locationId)
@@ -101,17 +109,30 @@ internal sealed class ReservationUpdateCommandHandler(
         #endregion
 
         #region Araç Müsaitlik Kontrolü
-        if (reservation.PickUpDate.Value != request.PickUpDate
+        var scheduleOrVehicleChanged =
+            reservation.PickUpLocationId.Value != locationId
+            || reservation.VehicleId.Value != request.VehicleId
+            || reservation.PickUpDate.Value != request.PickUpDate
             || reservation.PickUpTime.Value != request.PickUpTime
-            | reservation.DeliveryDate.Value != request.DeliveryDate
-            || reservation.DeliveryTime.Value != request.DeliveryTime
-            )
+            || reservation.DeliveryDate.Value != request.DeliveryDate
+            || reservation.DeliveryTime.Value != request.DeliveryTime;
+
+        if (scheduleOrVehicleChanged)
         {
-            var requestedPickUp = request.PickUpDate.ToDateTime(request.PickUpTime);
-            var requestedDelivery = request.DeliveryDate.ToDateTime(request.DeliveryTime);
+            if (request.PickUpDate < DateOnly.FromDateTime(DateTime.Today))
+            {
+                return Result<string>.Failure("Teslim alma tarihi bugünden önce olamaz.");
+            }
+
+            if (request.DeliveryDate < DateOnly.FromDateTime(DateTime.Today))
+            {
+                return Result<string>.Failure("Teslim etme tarihi bugünden önce olamaz.");
+            }
 
             var possibleOverlaps = await reservationRepository
                 .Where(r => r.VehicleId == request.VehicleId
+                && r.Id != request.Id
+                && r.PickUpLocationId == locationId
                 && (r.Status.Value == Status.Pending.Value || r.Status.Value == Status.Delivered.Value))
                 .Select(s => new
                 {

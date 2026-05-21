@@ -17,7 +17,7 @@ internal sealed class VehicleGetAllQueryHandler(
     public Task<IQueryable<VehicleDto>> Handle(VehicleGetAllQuery request, CancellationToken cancellationToken) =>
         Task.FromResult(
             vehicleRepository
-            .GetAllWithAudit()
+            .GetAll()
             .MapTo(branchRepository.GetAll(), categoryRepository.GetAll())
             .AsQueryable()
             );

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using RentCarServer.Domain.Customers;
 using TS.MediatR;
 using TS.Result;
@@ -13,13 +13,13 @@ internal sealed class CustomerGetQueryHandler(
     public async Task<Result<CustomerDto>> Handle(CustomerGetQuery request, CancellationToken cancellationToken)
     {
         var res = await repository
-            .GetAllWithAudit()
+            .GetAll()
             .MapTo()
             .Where(p => p.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (res is null)
-            return Result<CustomerDto>.Failure("Müþteri bulunamadý");
+            return Result<CustomerDto>.Failure("MÃ¼ÅŸteri bulunamadÄ±");
 
         return res;
     }

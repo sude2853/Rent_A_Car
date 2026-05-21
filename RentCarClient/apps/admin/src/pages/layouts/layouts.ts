@@ -21,6 +21,7 @@ export default class Layouts implements OnInit, OnDestroy {
   private resizeTimer: any;
   readonly navigations = signal<NavigationModel[]>(navigations);
   readonly decode = computed(() => this.#common.decode());
+  readonly displayName = computed(() => this.decode().fullName === 'Taner Saydam' ? 'Elif Sude' : this.decode().fullName);
 
   readonly #elementRef = inject(ElementRef);
   readonly #renderer = inject(Renderer2);

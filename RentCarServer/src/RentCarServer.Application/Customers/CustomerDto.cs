@@ -18,6 +18,30 @@ public sealed class CustomerDto : EntityDto
 
 public static class CustomerExtensions
 {
+    public static IQueryable<CustomerDto> MapTo(this IQueryable<Customer> entities)
+    {
+        return entities.Select(s => new CustomerDto
+        {
+            Id = s.Id,
+            FirstName = s.FirstName.Value,
+            LastName = s.LastName.Value,
+            FullName = s.FullName.Value,
+            IdentityNumber = s.IdentityNumber.Value,
+            DateOfBirth = s.DateOfBirth.Value,
+            PhoneNumber = s.PhoneNumber.Value,
+            Email = s.Email.Value,
+            DrivingLicenseIssuanceDate = s.DrivingLicenseIssuanceDate.Value,
+            FullAddress = s.FullAddress.Value,
+            IsActive = s.IsActive,
+            CreatedAt = s.CreatedAt,
+            CreatedBy = s.CreatedBy,
+            CreatedFullName = string.Empty,
+            UpdatedAt = s.UpdatedAt,
+            UpdatedBy = s.UpdatedBy != null ? s.UpdatedBy.Value : null,
+            UpdatedFullName = null,
+        });
+    }
+
     public static IQueryable<CustomerDto> MapTo(this IQueryable<EntityWithAuditDto<Customer>> entities)
     {
         return entities.Select(s => new CustomerDto

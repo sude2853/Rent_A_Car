@@ -16,6 +16,18 @@ export const appRoutes: Route[] = [
             {
                 path: 'register',
                 loadComponent:() => import('./pages/register/register')
+            },
+            {
+                path: 'reservations',
+                loadComponent:() => import('./pages/reservations/reservations')
+            },
+            {
+                path: 'profile',
+                loadComponent:() => import('./pages/profile/profile')
+            },
+            {
+                path: 'contact',
+                loadComponent:() => import('./pages/contact/contact')
             }
         ]
     }

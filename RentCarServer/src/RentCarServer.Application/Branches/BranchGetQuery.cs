@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
 using RentCarServer.Application.Behaviors;
+using RentCarServer.Domain.Abstractions;
 using RentCarServer.Domain.Branches;
 using TS.MediatR;
 using TS.Result;
@@ -12,19 +12,23 @@ public sealed record BranchGetQuery(
 internal sealed class BranchGetQueryHandler(
     IBranchRepository branchRepository) : IRequestHandler<BranchGetQuery, Result<BranchDto>>
 {
-    public async Task<Result<BranchDto>> Handle(BranchGetQuery request, CancellationToken cancellationToken)
+    public Task<Result<BranchDto>> Handle(BranchGetQuery request, CancellationToken cancellationToken)
     {
-        var branch = await branchRepository
-            .GetAllWithAudit()
-            .MapTo()
-            .Where(i => i.Id == request.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+        var branch = branchRepository
+            .GetAll()
+            .AsEnumerable()
+            .FirstOrDefault(i => i.Id.Value == request.Id);
 
         if (branch is null)
         {
-            return Result<BranchDto>.Failure("Şube bulunamadı");
+            return Task.FromResult(Result<BranchDto>.Failure("Şube bulunamadı"));
         }
 
-        return branch;
+        var dto = new[] { new EntityWithAuditDto<Branch> { Entity = branch } }
+            .AsQueryable()
+            .MapTo()
+            .First();
+
+        return Task.FromResult(Result<BranchDto>.Succeed(dto));
     }
 }

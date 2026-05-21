@@ -1,8 +1,8 @@
-<grid
+﻿<grid
   pageTitle="Araçlar"
   endpoint="/rent/odata/vehicles"
   [addOptions]="{url: '/vehicles/add', permission: 'vehicle:create' }"
-  [editOptions]="{url: '/vehicles/edit', permission: 'vehicle:edit'}"
+  [editOptions]="{url: '/vehicles/edit', permission: 'vehicle:update'}"
   [detailOptions]="{url: '/vehicles/detail', permission: 'vehicle:view'}"
   [deleteOptions]="{url: '/rent/vehicles', permission: 'vehicle:delete'}"
   [breadcrumbs]="bredcrumbs()"
@@ -56,3 +56,4 @@
   <flexi-grid-column field="generalStatus" title="Genel Durum"/>
   <flexi-grid-column field="features" title="Özellikler"/>
 </grid>
+

@@ -15,6 +15,7 @@ public static class BranchExtensions
     public static IQueryable<BranchDto> MapTo(this IQueryable<EntityWithAuditDto<Branch>> entity)
     {
         var res = entity
+            .AsEnumerable()
             .Select(s => new BranchDto
             {
                 Id = s.Entity.Id,
@@ -26,7 +27,7 @@ public static class BranchExtensions
                 IsActive = s.Entity.IsActive,
                 UpdatedAt = s.Entity.UpdatedAt,
                 UpdatedBy = s.Entity.UpdatedBy == null ? null : s.Entity.UpdatedBy.Value,
-                CreatedFullName = s.CreatedUser.FullName.Value,
+                CreatedFullName = s.CreatedUser == null ? string.Empty : s.CreatedUser.FullName.Value,
                 UpdatedFullName = s.UpdatedUser == null ? null : s.UpdatedUser.FullName.Value
             })
             .AsQueryable();

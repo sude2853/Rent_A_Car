@@ -18,10 +18,12 @@ export default class Login {
   readonly loading = signal<boolean>(false);
   readonly email = signal<string>("");
   readonly emailOrUserName = signal<string>("");
+  readonly password = signal<string>("");
   readonly tfaCode = signal<string>("");
   readonly tfaConfirmCode = signal<string>("");
   readonly showTFAForm = signal<boolean>(false);
   readonly time = signal<{min: number, sec: number}>({min:5, sec:0})
+  readonly errorMessage = signal<string>("");
 
   readonly passwordEl = viewChild<ElementRef<HTMLInputElement>>("passwordEl");
   readonly closeBtn = viewChild<ElementRef<HTMLButtonElement>>("modalCloseBtn");
@@ -37,10 +39,19 @@ export default class Login {
   }
 
   login(form: NgForm) {
-    if (!form.valid) return;
+    this.errorMessage.set("");
+    if (!form.valid) {
+      this.errorMessage.set("Kullanıcı adı ve şifre alanlarını doldurun.");
+      return;
+    }
 
     this.loading.set(true);
-    this.#http.post<{token: string | null, tfaCode: string | null}>("/rent/auth/login", form.value, (res) => {
+    const data = {
+      emailOrUserName: this.emailOrUserName().trim(),
+      password: this.password()
+    };
+
+    this.#http.post<{token: string | null, tfaCode: string | null}>("/rent/auth/login", data, (res) => {
       if(res.token !== null){
         localStorage.setItem("response", res.token);
         this.#router.navigateByUrl("/");
@@ -69,7 +80,10 @@ export default class Login {
         }, 1000);
       }
       this.loading.set(false);
-    }, () => this.loading.set(false));
+    }, () => {
+      this.errorMessage.set("Kullanıcı adı ya da şifre hatalı.");
+      this.loading.set(false);
+    });
   }
 
   loginWithTFA(form: NgForm) {
@@ -96,5 +110,13 @@ export default class Login {
       this.#toast.showToast("Başarılı",res, "info");
       this.closeBtn()!.nativeElement.click();
     });
+  }
+
+  updateEmailOrUserName(value: string) {
+    this.emailOrUserName.set(value);
+  }
+
+  updatePassword(value: string) {
+    this.password.set(value);
   }
 }

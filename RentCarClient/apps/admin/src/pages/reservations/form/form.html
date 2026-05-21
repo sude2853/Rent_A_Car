@@ -222,26 +222,43 @@
                             <div class="section-content">
                                 <!-- Araç Diyagramı -->
                                 <div class="vehicle-diagram">
-                                    <div class="diagram-container">
+                                    <div class="diagram-container" (click)="setDamagePoint($event)">
                                         <img src="https://otokarnavali.com/Content/ekspertiz-araci.gif" alt="">
+                                        <div class="damage-points">
+                                            @for(val of data().damages; track val){
+                                                @if(damagePoint(val.description); as point){
+                                                    <button type="button" [class]="'damage-point ' + damagePointClass(val.level)"
+                                                        [style.left.%]="point.x" [style.top.%]="point.y"
+                                                        [title]="damageDisplay(val)" (click)="$event.stopPropagation()"></button>
+                                                }
+                                            }
+                                            @if(selectedDamagePoint(); as point){
+                                                <button type="button" [class]="'damage-point selected-point ' + damagePointClass(damage().level)"
+                                                    [style.left.%]="point.x" [style.top.%]="point.y"
+                                                    title="Seçilen hasar noktası" (click)="$event.stopPropagation()"></button>
+                                            }
+                                        </div>
                                     </div>
+                                    @if(showButton()){
+                                        <small class="damage-diagram-hint">Hasar noktasını seçmek için araç görseline tıklayın.</small>
+                                    }
                                 </div>
 
                                 <!-- Hasar Listesi -->
                                 <div class="damage-list">
                                     <div class="damage-types">
-                                        <label class="damage-type">
-                                            <input type="radio" name="damageType" value="minor">
+                                        <label class="damage-type" [class.selected]="damagePointClass(damage().level) === 'minor'" (click)="setDamageLevel('Küçük Çizik')">
+                                            <input type="radio" name="damageType" value="minor" [checked]="damagePointClass(damage().level) === 'minor'">
                                             <span class="damage-color minor" style="background-color: #ffc107;"></span>
                                             Küçük Çizik
                                         </label>
-                                        <label class="damage-type">
-                                            <input type="radio" name="damageType" value="major">
+                                        <label class="damage-type" [class.selected]="damagePointClass(damage().level) === 'major'" (click)="setDamageLevel('Büyük Hasar')">
+                                            <input type="radio" name="damageType" value="major" [checked]="damagePointClass(damage().level) === 'major'">
                                             <span class="damage-color major" style="background-color: #ac3c47;"></span>
                                             Büyük Hasar
                                         </label>
-                                        <label class="damage-type">
-                                            <input type="radio" name="damageType" value="dent">
+                                        <label class="damage-type" [class.selected]="damagePointClass(damage().level) === 'dent'" (click)="setDamageLevel('Kritik Hasar')">
+                                            <input type="radio" name="damageType" value="dent" [checked]="damagePointClass(damage().level) === 'dent'">
                                             <span class="damage-color dent" style="background-color: #640912;"></span>
                                             Kritik Hasar
                                         </label>
@@ -254,7 +271,7 @@
                                             <div class="add-damage-controls">
                                                 <div class="row g-2">
                                                     <div class="col-md-4">
-                                                        <select class="form-control" id="damageLocation" [(ngModel)]="damage().level" name="damageLevel">
+                                                        <select class="form-control" id="damageLocation" [ngModel]="damage().level" (ngModelChange)="setDamageLevel($event)" name="damageLevel">
                                                             <option>Küçük Çizik</option>
                                                             <option>Büyük Hasar</option>
                                                             <option>Kritik Hasar</option>
@@ -262,11 +279,11 @@
                                                     </div>
                                                     <div class="col-md-7">
                                                         <input type="text" class="form-control" id="damageDescription"
-                                                            placeholder="Hasar açıklaması (opsiyonel)" maxlength="100" [(ngModel)]="damage().description" name="damageDescription">
+                                                            placeholder="Hasar açıklaması (opsiyonel)" maxlength="100" [ngModel]="damage().description" (ngModelChange)="setDamageDescription($event)" name="damageDescription">
                                                     </div>
                                                     <div class="col-md-1">
                                                         <button type="button" class="btn btn-primary btn-sm w-100 h-100" (click)="addDamage()">
-                                                            <i class="bi bi-plus-circle me-1"
+                                                            <i [class]="editingDamageIndex() === null ? 'bi bi-plus-circle me-1' : 'bi bi-check-circle me-1'"
                                                                 style="font-size: 1.7rem;"></i>
                                                         </button>
                                                     </div>
@@ -280,9 +297,14 @@
                                         <ul id="damagesList">
                                             @for(val of data().damages; track val){
                                                 <li [class]="setDamageClass(val.level)" class="d-flex justify-content-between">
-                                                    <span>{{val.description}}</span>
+                                                    <span>{{damageDisplay(val)}}</span>
                                                     @if(showButton()){
-                                                        <flexi-button btnColor="danger" btnSize="x-small" btnIcon="delete" (click)="removeDamage($index)" />
+                                                        <div class="d-flex gap-2">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm" (click)="editDamage($index)">
+                                                                Düzenle
+                                                            </button>
+                                                            <flexi-button btnColor="danger" btnSize="x-small" btnIcon="delete" (click)="removeDamage($index)" />
+                                                        </div>
                                                     }
                                                 </li>
                                             }@empty {
@@ -305,7 +327,7 @@
                             </div>
                         </div>
 
-                        @if(showButton() && type()==='pickup'){
+                        @if(requiresCustomerSignature()){
                             <!-- İmza Alanları -->
                             <div class="delivery-section">
                                 <div class="section-header">
@@ -314,12 +336,28 @@
                                 <div class="section-content">
                                     <div class="signature-area">
                                         <div class="signature-grid">
-                                            <div class="signature-box">
+                                            <div class="signature-box" [class.signed]="signatureSigned()">
                                                 <div class="signature-canvas" id="customerSignature">
+                                                    <canvas #signatureCanvas class="signature-pad"
+                                                        (pointerdown)="startSignature($event)"
+                                                        (pointermove)="drawSignature($event)"
+                                                        (pointerup)="endSignature($event)"
+                                                        (pointercancel)="endSignature($event)"
+                                                        (lostpointercapture)="endSignature($event)"></canvas>
+                                                    @if(!signatureSigned()){
                                                     <div class="signature-placeholder">
                                                         <i class="bi bi-pencil-square"></i>
                                                         <span>Müşteri İmzası</span>
                                                     </div>
+                                                    }
+                                                </div>
+                                                <div class="signature-actions">
+                                                    @if(signatureSigned()){
+                                                        <span class="signature-status"><i class="bi bi-check-circle me-1"></i>İmza alındı</span>
+                                                    }
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clearSignature()">
+                                                        <i class="bi bi-eraser me-1"></i>Temizle
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -327,7 +365,7 @@
                                         <!-- Onay Metni -->
                                         <div class="approval-text">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="customerApproval" [(ngModel)]="customerApproval"
+                                                <input class="form-check-input" type="checkbox" id="customerApproval" [ngModel]="customerApproval()" (ngModelChange)="customerApproval.set($event)"
                                                     required>
                                                 <label class="form-check-label" for="customerApproval">
                                                     Müşteri olarak, aracı yukarıda belirtilen durumda teslim aldığımı,
@@ -348,7 +386,7 @@
                         <div class="actions-container">
                             <div class="actions-right d-flex justify-content-end w-100">
                                 <button type="button" class="btn btn-success btn-lg" (click)="save()">
-                                    <i class="bi bi-check-circle me-2"></i>Teslimi Tamamla
+                                    <i class="bi bi-check-circle me-2"></i>{{btnName()}}
                                 </button>
                             </div>
                         </div>

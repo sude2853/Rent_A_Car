@@ -30,14 +30,14 @@ export default class Create {
   readonly id = signal<string | undefined>(undefined);
   readonly bredcrumbs = signal<BreadcrumbModel[]>([
     {
-      title: 'Şubeler',
+      title: '\u015Eubeler',
       icon: 'bi-buildings',
       url: '/branches'
     }
   ]);
-  readonly pageTitle = computed(() => this.id() ? 'Şube Güncelle' : 'Şube Ekle');
+  readonly pageTitle = computed(() => this.id() ? '\u015Eube G\u00FCncelle' : '\u015Eube Ekle');
   readonly pageIcon = computed(() => this.id() ? 'bi-pen' : 'bi-plus');
-  readonly btnName = computed(() => this.id() ? 'Güncelle' : 'Kaydet');
+  readonly btnName = computed(() => this.id() ? 'G\u00FCncelle' : 'Kaydet');
   readonly result = resource({
     params: () => this.id(),
     loader: async () => {
@@ -94,15 +94,15 @@ export default class Create {
     if(!this.id()){
       this.loading.set(true);
       this.#http.post<string>('/rent/branches', this.data(), (res) => {
-        this.#toast.showToast("Başarılı",res,"success");
-        this.#router.navigateByUrl("/branches");
+        this.#toast.showToast('Ba\u015Far\u0131l\u0131', res, 'success');
+        this.#router.navigateByUrl('/branches');
         this.loading.set(false);
       },() => this.loading.set(false));
     }else{
       this.loading.set(true);
       this.#http.put<string>('/rent/branches', this.data(), (res) => {
-        this.#toast.showToast("Başarılı",res,"info");
-        this.#router.navigateByUrl("/branches");
+        this.#toast.showToast('Ba\u015Far\u0131l\u0131', res, 'info');
+        this.#router.navigateByUrl('/branches');
         this.loading.set(false);
       },() => this.loading.set(false));
     }
@@ -117,6 +117,6 @@ export default class Create {
 
   getIlceler(){
     const il = this.iller().find(i =>i.il_adi === this.data().address.city);
-    this.ilceler.set(il.ilceler);
+    this.ilceler.set(il?.ilceler ?? []);
   }
 }

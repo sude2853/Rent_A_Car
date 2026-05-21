@@ -1,10 +1,6 @@
-<blank pageTitle="Dashboard" pageIcon="bi-speedometer2" pageDescription="Sistem genel durumu ve performans göstergeleri" [showBackBtn]="false" [showStatusCheckbox]="false">
-    <!-- Quick Stats Cards -->
+<blank pageTitle="Dashboard" pageIcon="bi-speedometer2" pageDescription="Sistem genel durumu ve performans g&#246;stergeleri" [showBackBtn]="false" [showStatusCheckbox]="false">
     <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6 p-relative">
-            @if(activeReservationCountLoading()){
-                <loading />
-            }
+        <div class="col-xl-3 col-md-6">
             <div class="admin-card dashboard-stat-card">
                 <div class="card-body">
                     <div class="stat-card-content">
@@ -28,8 +24,8 @@
                             <i class="bi bi-car-front"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 class="stat-number">89</h3>
-                            <p class="stat-label">Toplam Araç Sayısı</p>
+                            <h3 class="stat-number">{{vehicleCount()}}</h3>
+                            <p class="stat-label">Toplam Ara&#231; Say&#305;s&#305;</p>
                         </div>
                     </div>
                 </div>
@@ -44,8 +40,8 @@
                             <i class="bi bi-currency-dollar"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 class="stat-number">₺47.830</h3>
-                            <p class="stat-label">Temmuz Ayı Geliri</p>
+                            <h3 class="stat-number">{{formatCurrency(currentMonthIncome())}}</h3>
+                            <p class="stat-label">Bu Ay Geliri</p>
                         </div>
                     </div>
                 </div>
@@ -60,8 +56,8 @@
                             <i class="bi bi-people"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 class="stat-number">1.247</h3>
-                            <p class="stat-label">Toplam Müşteri</p>
+                            <h3 class="stat-number">{{customerCount()}}</h3>
+                            <p class="stat-label">Toplam M&#252;&#351;teri</p>
                         </div>
                     </div>
                 </div>
@@ -69,21 +65,13 @@
         </div>
     </div>
 
-    <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="admin-card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6><i class="bi bi-graph-up text-primary me-2"></i>Gelir Analizi</h6>
-                        <div class="chart-controls">
-                            <select class="form-select form-select-sm">
-                                <option>Son 7 Gün</option>
-                                <option>Son 30 Gün</option>
-                                <option>Son 3 Ay</option>
-                                <option>Son 12 Ay</option>
-                            </select>
-                        </div>
+                        <span class="badge bg-light text-dark">Son 7 G&#252;n</span>
                     </div>
                 </div>
                 <div class="card-body">

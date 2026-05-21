@@ -1,4 +1,4 @@
-import { inject } from "@angular/core";
+﻿import { inject } from "@angular/core";
 import { Routes } from "@angular/router";
 import { Common } from "../../services/common";
 
@@ -16,7 +16,7 @@ const router: Routes = [
     {
         path: 'edit/:id',
         loadComponent: () => import('./create/create'),
-        canActivate: [() => inject(Common).checkPermissionForRoute('vehicle:edit')]
+        canActivate: [() => inject(Common).checkPermissionForRoute('vehicle:update')]
     },
     {
         path: 'detail/:id',
@@ -26,3 +26,4 @@ const router: Routes = [
 ];
 
 export default router;
+

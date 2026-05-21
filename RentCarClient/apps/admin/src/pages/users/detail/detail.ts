@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, resource, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import Blank from 'apps/admin/src/components/blank/blank';
 import { UserModel, initialUser } from '@shared/lib/models/user.model';
@@ -20,7 +20,7 @@ export default class Detail {
   readonly result = httpResource<Result<UserModel>>(() => `/rent/users/${this.id()}`);
   readonly data = computed(() => this.result.value()?.data ?? initialUser);
   readonly loading = computed(() => this.result.isLoading());
-  readonly pageTitle = signal<string>("Kullanıcı Detay");
+  readonly pageTitle = signal<string>("Kullan\u0131c\u0131 Detay");
 
   readonly #activated = inject(ActivatedRoute);
   readonly #breadcrumb = inject(BreadcrumbService);
@@ -33,7 +33,7 @@ export default class Detail {
     effect(() => {
       const breadCrumbs: BreadcrumbModel[] = [
         {
-          title: 'Kullanıcılar',
+          title: 'Kullan\u0131c\u0131lar',
           icon: 'bi-people',
           url: '/users'
         }

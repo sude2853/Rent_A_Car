@@ -25,9 +25,9 @@ internal sealed class ReservationGetQueryHandler(
     IExtraRepository extraRepository
     ) : IRequestHandler<ReservationGetQuery, Result<ReservationDto>>
 {
-    public async Task<Result<ReservationDto>> Handle(ReservationGetQuery request, CancellationToken cancellationToken)
+    public Task<Result<ReservationDto>> Handle(ReservationGetQuery request, CancellationToken cancellationToken)
     {
-        var res = await reservationRepository.GetAllWithAudit().MapTo(
+        var res = reservationRepository.GetAllWithAudit().MapTo(
             customerRepository.GetAll(),
             brancheRepository.GetAll(),
             vehicleRepository.GetAll(),
@@ -35,13 +35,13 @@ internal sealed class ReservationGetQueryHandler(
             protectionPackageRepository.GetAll(),
             extraRepository.GetAll())
             .Where(i => i.Id == request.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
 
         if (res is null)
         {
-            return Result<ReservationDto>.Failure("Rezervasyon bulunamadı");
+            return Task.FromResult(Result<ReservationDto>.Failure("Rezervasyon bulunamadı"));
         }
 
-        return res;
+        return Task.FromResult(Result<ReservationDto>.Succeed(res));
     }
 }

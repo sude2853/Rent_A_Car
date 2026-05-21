@@ -14,14 +14,14 @@ export const navigations: NavigationModel[] = [
         icon: 'bi-speedometer2',
         permission: 'dashboard:view'
     },
-     {
+    {
         title: 'Rezervasyonlar',
         url: '/reservations',
         icon: 'bi-calendar-check',
         permission: 'reservation:view'
     },
     {
-        title: 'Şubeler',
+        title: '\u015eubeler',
         url: '/branches',
         icon: 'bi-buildings',
         permission: 'branch:view'
@@ -33,13 +33,13 @@ export const navigations: NavigationModel[] = [
         permission: 'role:view'
     },
     {
-        title: 'Kullanıcılar',
+        title: 'Kullan\u0131c\u0131lar',
         url: '/users',
         icon: 'bi-people',
         permission: 'user:view'
     },
     {
-        title: 'Müşteriler',
+        title: 'M\u00fc\u015fteriler',
         url: '/customers',
         icon: 'bi-person-vcard',
         permission: 'customer:view'
@@ -51,13 +51,13 @@ export const navigations: NavigationModel[] = [
         permission: 'category:view'
     },
     {
-        title: 'Araçlar',
+        title: 'Ara\u00e7lar',
         url: '/vehicles',
         icon: 'bi-car-front',
         permission: 'vehicle:view'
     },
     {
-        title: 'Güvence Paketleri',
+        title: 'G\u00fcvence Paketleri',
         url: '/protection-packages',
         icon: 'bi-shield-check',
         permission: 'protection_package:view'

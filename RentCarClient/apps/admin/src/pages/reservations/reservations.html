@@ -12,16 +12,16 @@
   [filter]='[]'
   commandColumnWidth="200px"
   >
-    <flexi-grid-column field="reservationNumber" title="Rez.Numarası"/>
+    <flexi-grid-column field="reservationNumber" title="Rez.Numaras&#305;"/>
     <flexi-grid-column field="status" title="Durum" filterType="select" [filterData]="statusFilterData()" textAlign="center">
         <ng-template flexiGridCellTemplate let-item>
             <span class="flexi-grid-card" [ngClass]="getStatusClass(item.status)">{{item.status}}</span>
         </ng-template>
     </flexi-grid-column>
-    <flexi-grid-column field="pickUp.name" title="Alış Noktası"/>
+    <flexi-grid-column field="pickUp.name" title="Al&#305;&#351; Noktas&#305;"/>
     <flexi-grid-column
       field="pickUpDateTime"
-      title="Alış Tarihi"
+      title="Al&#305;&#351; Tarihi"
       filterType="date"
       format="dd MMM yyyy HH:mm" />
     <flexi-grid-column
@@ -29,24 +29,24 @@
       title="Teslim Tarihi"
       filterType="date"
       format="dd MMM yyyy HH:mm" />
-    <flexi-grid-column field="customer.fullName" title="Müşteri"/>
+    <flexi-grid-column field="customer.fullName" title="M&#252;&#351;teri"/>
     <flexi-grid-column field="customer.phoneNumber" title="Telefon">
         <ng-template flexiGridCellTemplate let-item>
             <span>+90{{ item.customer.phoneNumber | mask: '(000) 000 00 00' }}</span>
         </ng-template>
     </flexi-grid-column>
-    <flexi-grid-column field="totalDay" title="Gün" textAlign="center"/>
-    <flexi-grid-column title="Araç Resmi">
+    <flexi-grid-column field="totalDay" title="G&#252;n" textAlign="center"/>
+    <flexi-grid-column title="Ara&#231; Resmi">
         <ng-template flexiGridCellTemplate let-item>
             <img
                 [src]="`https://localhost:7207/images/${item.vehicle?.imageUrl}`"
-                alt="Araç"
+                alt="Ara&#231;"
                 class="vehicle-image">
         </ng-template>
     </flexi-grid-column>
     <flexi-grid-column field="vehicle.brand" title="Marka"/>
     <flexi-grid-column field="vehicle.model" title="Model"/>
-    <flexi-grid-column field="vehicle.modelYear" title="Model Yılı"/>
+    <flexi-grid-column field="vehicle.modelYear" title="Model Y&#305;l&#305;"/>
     <flexi-grid-column field="vehicle.color" title="Renk"/>
     <flexi-grid-column field="vehicle.categoryName" title="Kategori"/>
     <flexi-grid-column
@@ -54,14 +54,14 @@
       title="Toplam Tutar"
       filterType="number"
       format="c"
-      symbol="₺"
+      symbol="&#8378;"
       textAlign="right" />
 
       <ng-template #columnCommandTemplate let-item>
-        @if(item.status !== 'İptal Edildi'){
+        @if(item.status !== '&#304;ptal Edildi'){
           <flexi-button btnColor="purple" btnIcon="assignment_add" btnSize="small" title="Teslim Etme Formu" [routerLink]="['/form','pickup',item.id]" />
         }
-        @if(item.status !== 'Bekliyor' && item.status !== 'İptal Edildi'){
+        @if(item.status !== 'Bekliyor' && item.status !== '&#304;ptal Edildi'){
           <flexi-button btnColor="pink" btnIcon="car_rental" btnSize="small" title="Teslim Alma Formu" [routerLink]="['/form','delivery',item.id]" />
         }
       </ng-template>

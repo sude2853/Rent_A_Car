@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RentCarServer.Application.Services;
 using RentCarServer.Domain.Branches;
+using RentCarServer.Domain.Customers;
 using RentCarServer.Domain.LoginTokens;
 using RentCarServer.Domain.LoginTokens.ValueObjects;
 using RentCarServer.Domain.Roles;
@@ -39,6 +40,28 @@ internal sealed class JwtProvider(
             new Claim("branchId", branch?.Id ?? string.Empty)
         };
 
+        return await CreateTokenAsync(claims, user.Id, cancellationToken);
+    }
+
+    public async Task<string> CreateTokenAsync(Customer customer, CancellationToken cancellationToken = default)
+    {
+        List<Claim> claims = new()
+        {
+            new Claim(ClaimTypes.NameIdentifier, customer.Id),
+            new Claim("fullName", customer.FullName.Value),
+            new Claim("fullNameWithEmail", customer.FullName.Value + " (" + customer.Email.Value + ")"),
+            new Claim("email", customer.Email.Value),
+            new Claim("role", "customer"),
+            new Claim("permissions", "[]"),
+            new Claim("branch", string.Empty),
+            new Claim("branchId", string.Empty)
+        };
+
+        return await CreateTokenAsync(claims, customer.Id, cancellationToken);
+    }
+
+    private async Task<string> CreateTokenAsync(List<Claim> claims, Guid userId, CancellationToken cancellationToken)
+    {
         SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(options.Value.SecretKey));
         SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha512);
 
@@ -56,11 +79,11 @@ internal sealed class JwtProvider(
 
         Token newToken = new(token);
         ExpiresDate expiresDate = new(expires);
-        LoginToken loginToken = new(newToken, user.Id, expiresDate);
+        LoginToken loginToken = new(newToken, new(userId), expiresDate);
         loginTokenRepository.Add(loginToken);
 
         var loginTokens = await loginTokenRepository
-            .Where(p => p.UserId == user.Id && p.IsActive.Value == true)
+            .Where(p => p.UserId == userId && p.IsActive.Value == true)
             .ToListAsync(cancellationToken);
         foreach (var item in loginTokens)
         {

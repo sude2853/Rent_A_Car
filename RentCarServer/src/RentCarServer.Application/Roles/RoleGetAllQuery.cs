@@ -10,5 +10,11 @@ internal sealed class RoleGetAllQueryHandler(
     IRoleRepository roleRepository) : IRequestHandler<RoleGetAllQuery, IQueryable<RoleDto>>
 {
     public Task<IQueryable<RoleDto>> Handle(RoleGetAllQuery request, CancellationToken cancellationToken) =>
-        Task.FromResult(roleRepository.GetAllWithAudit().MapTo().AsQueryable());
+        Task.FromResult(roleRepository.GetAll()
+            .Select(role => new RentCarServer.Domain.Abstractions.EntityWithAuditDto<Role>
+            {
+                Entity = role
+            })
+            .MapTo()
+            .AsQueryable());
 }

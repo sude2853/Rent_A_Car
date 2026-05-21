@@ -38,6 +38,14 @@ public static class CustomerModule
             })
             .Produces<Result<string>>();
 
+        app.MapGet("my",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var result = await sender.Send(new CustomerGetMineQuery(), cancellationToken);
+                return result.IsSuccessful ? Results.Ok(result) : Results.InternalServerError(result);
+            })
+            .Produces<Result<CustomerDto>>();
+
         app.MapGet("{id}",
             async (Guid id, ISender sender, CancellationToken cancellationToken) =>
             {

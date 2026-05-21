@@ -104,6 +104,6 @@ app.MapReservationForm();
 app.MapDashboard();
 
 app.MapGet("/", () => "Hello World").RequireAuthorization();
-//await app.CreateFirstUser();
+await app.CreateFirstUser();
 await app.CleanRemovedPermissionsFromRoleAsync();
 app.Run();

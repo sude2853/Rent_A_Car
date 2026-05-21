@@ -1,4 +1,4 @@
-<blank
+﻿<blank
   [pageTitle]="pageTitle()"
   [pageIcon]="pageIcon()"
   (changeStatusEvent)="changeStatus($event)"
@@ -21,8 +21,8 @@
             <input type="text" class="form-control" [(ngModel)]="data().lastName" name="lastName" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label">TC Kimlik No *</label>
-            <input type="text" class="form-control" [(ngModel)]="data().identityNumber" name="identityNumber" required maxlength="11" minlength="11">
+            <label class="form-label">TC Kimlik No / Kullanıcı Adı *</label>
+            <input type="text" class="form-control" [(ngModel)]="data().identityNumber" name="identityNumber" required>
           </div>
           <div class="col-md-6">
             <label class="form-label">Doğum Tarihi *</label>

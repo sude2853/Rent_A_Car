@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, inject, input, output, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { FlexiGridColumnComponent, FlexiGridModule, FlexiGridReorderModel, FlexiGridService, StateFilterModel, StateModel, StateSortModel } from 'flexi-grid';
 import { ODataModel } from '@shared/lib/models/odata.model';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FlexiToastService } from 'flexi-toast';
 import { HttpService } from '@shared/lib/services/http';
 import { BreadcrumbModel, BreadcrumbService } from '../../services/breadcrumb';
@@ -18,7 +18,6 @@ export interface btnOptions{
   selector: 'grid',
   imports: [
     FlexiGridModule,
-    RouterLink,
     NgTemplateOutlet
   ],
   templateUrl: './grid.html',
@@ -70,6 +69,7 @@ export default class Grid implements AfterViewInit {
   readonly #toast = inject(FlexiToastService);
   readonly #http = inject(HttpService);
   readonly #common = inject(Common);
+  readonly #router = inject(Router);
 
   ngAfterViewInit(): void {
     this.#breadcrumb.reset(this.breadcrumbs());
@@ -80,9 +80,8 @@ export default class Grid implements AfterViewInit {
   }
 
   delete(id: string){
-    this.#toast.showSwal('Sil?', 'Kaydı silmek istiyor musunuz?','Sil', () => {
-      this.#http.delete(`${this.deleteOptions().url}/${id}`,res => {
-        //toast ile mesaj göster
+    this.#toast.showSwal('Sil?', 'Kayd\u0131 silmek istiyor musunuz?','Sil', () => {
+      this.#http.delete(`${this.deleteOptions().url}/${id}`,() => {
         this.result.reload();
       });
     })
@@ -90,6 +89,11 @@ export default class Grid implements AfterViewInit {
 
   checkPermission(permission: string){
     return this.#common.checkPermission(permission);
+  }
+
+  navigate(url: string, id?: string){
+    const target = id ? `${url}/${id}` : url;
+    this.#router.navigateByUrl(target);
   }
 
   onReoderMethod(event:FlexiGridReorderModel){

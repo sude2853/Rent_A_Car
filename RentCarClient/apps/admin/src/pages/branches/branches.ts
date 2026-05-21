@@ -17,7 +17,7 @@ import { FlexiGridModule } from 'flexi-grid';
 export default class Branches {
   readonly bredcrumbs = signal<BreadcrumbModel[]>([
     {
-      title: 'Şubeler',
+      title: '\u015Eubeler',
       icon: 'bi-buildings',
       url: '/branches',
       isActive: true

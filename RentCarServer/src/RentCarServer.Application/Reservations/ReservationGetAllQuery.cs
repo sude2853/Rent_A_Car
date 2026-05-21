@@ -22,7 +22,11 @@ internal sealed class ReservationGetAllQueryHandler(
     IExtraRepository extraRepository
     ) : IRequestHandler<ReservationGetAllQuery, IQueryable<ReservationDto>>
 {
-    public Task<IQueryable<ReservationDto>> Handle(ReservationGetAllQuery request, CancellationToken cancellationToken) => Task.FromResult(reservationRepository.GetAllWithAudit()
+    public Task<IQueryable<ReservationDto>> Handle(ReservationGetAllQuery request, CancellationToken cancellationToken) => Task.FromResult(reservationRepository.GetAll()
+            .Select(reservation => new RentCarServer.Domain.Abstractions.EntityWithAuditDto<Reservation>
+            {
+                Entity = reservation
+            })
             .MapTo(
                 customerRepository.GetAll(),
                 brancheRepository.GetAll(),

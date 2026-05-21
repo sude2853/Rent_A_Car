@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RentCarServer.Application.Behaviors;
 using RentCarServer.Domain.Categories;
 using TS.MediatR;
@@ -15,14 +15,14 @@ internal sealed class CategoryGetQueryHandler(
     public async Task<Result<CategoryDto>> Handle(CategoryGetQuery request, CancellationToken cancellationToken)
     {
         var res = await categoryRepository
-            .GetAllWithAudit()
+            .GetAll()
             .MapToGet()
             .Where(p => p.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (res is null)
         {
-            return Result<CategoryDto>.Failure("Kategori bulunamad�");
+            return Result<CategoryDto>.Failure("Kategori bulunamadı");
         }
 
         return res;

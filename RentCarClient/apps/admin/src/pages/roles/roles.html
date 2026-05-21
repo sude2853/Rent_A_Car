@@ -8,8 +8,8 @@
  [breadcrumbs]="bredcrumbs()"
  captionTitle="Rol Listesi"
 >
-    <flexi-grid-column field="name" title="Rol Adı"/>
-    <flexi-grid-column field="permissionCount" title="İzin Sayısı" textAlign="right"/>
+    <flexi-grid-column field="name" title="Rol Ad&#305;"/>
+    <flexi-grid-column field="permissionCount" title="&#304;zin Say&#305;s&#305;" textAlign="right"/>
 
     <ng-template #columnCommandTemplate let-item>
         @if(checkPermission('role:update_permissions')){
@@ -17,7 +17,7 @@
               btnColor="pink"
               btnSize="small"
               btnIcon="key"
-              title="İzinler"
+              title="&#304;zinler"
               flexiTooltip
               [routerLink]="['/roles/permissions',item.id]" />
         }

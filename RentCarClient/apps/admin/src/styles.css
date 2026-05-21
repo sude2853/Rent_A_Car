@@ -5527,6 +5527,13 @@ body {
     position: relative;
     max-width: 400px;
     margin: 0 auto;
+    cursor: crosshair;
+}
+
+.diagram-container img {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
 }
 
 .car-svg {
@@ -5594,11 +5601,12 @@ body {
     pointer-events: all;
     transition: all 0.3s ease;
     opacity: 0.7;
+    transform: translate(-50%, -50%);
 }
 
 .damage-point:hover {
     background: #007bff;
-    transform: scale(1.2);
+    transform: translate(-50%, -50%) scale(1.2);
     opacity: 1;
 }
 
@@ -5621,6 +5629,19 @@ body {
 .damage-point.dent {
     background: #6f42c1;
     border-color: #6f42c1;
+}
+
+.damage-point.selected-point {
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.18);
+    opacity: 1;
+    animation: damageAlert 0.5s ease-in-out;
+}
+
+.damage-diagram-hint {
+    display: block;
+    margin-top: 0.75rem;
+    color: #6c757d;
+    text-align: center;
 }
 
 /* Damage List */
@@ -5652,6 +5673,12 @@ body {
 
 .damage-type:hover {
     border-color: #007bff;
+}
+
+.damage-type.selected {
+    border-color: #007bff;
+    background: #eef6ff;
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.12);
 }
 
 .damage-type input[type="radio"] {
@@ -5771,18 +5798,22 @@ body {
     text-align: center;
 }
 
+.signature-box.signed {
+    border-color: #198754;
+}
+
 .signature-canvas {
     width: 100%;
-    height: 120px;
+    height: 150px;
     background: white;
     border: 2px dashed #6c757d;
     border-radius: 8px;
     margin-bottom: 1rem;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
+    overflow: hidden;
     cursor: pointer;
+    touch-action: none;
     transition: all 0.3s ease;
 }
 
@@ -5795,9 +5826,21 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     color: #6c757d;
     font-size: 0.9rem;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.signature-pad {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #fff;
+    touch-action: none;
 }
 
 .signature-placeholder i {
@@ -5830,7 +5873,15 @@ body {
 
 .signature-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.signature-status {
+    color: #198754;
+    font-weight: 700;
+    margin-right: auto;
 }
 
 /* Approval Text */
@@ -6941,4 +6992,18 @@ a {
 
 .p-relative{
     position: relative;
+}
+
+.admin-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.75rem 0 1rem;
+    color: var(--admin-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-home-link:hover {
+    color: var(--admin-accent-dark);
 }

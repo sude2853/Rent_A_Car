@@ -1,7 +1,6 @@
 ﻿using RentCarServer.Application.Auth;
 using TS.MediatR;
 using TS.Result;
-
 namespace RentCarServer.WebAPI.Modules;
 
 public static class AuthModule
@@ -54,5 +53,21 @@ public static class AuthModule
            })
            .Produces<Result<string>>()
            .RequireRateLimiting("check-forgot-password-code-fixed");
+
+        app.MapGet("/check-user-name/{userName}",
+            async (string userName, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new CheckCustomerUserNameQuery(userName), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.UnprocessableEntity(res);
+            })
+            .Produces<Result<bool>>();
+
+        app.MapPost("/register",
+            async (RegisterCustomerCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.InternalServerError(res);
+            })
+            .Produces<Result<string>>();
     }
 }

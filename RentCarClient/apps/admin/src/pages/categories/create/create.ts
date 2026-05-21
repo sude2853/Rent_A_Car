@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+﻿import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, resource, signal, ViewEncapsulation } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,7 +36,9 @@ export default class CreateCategory {
   readonly result = resource({
     params: () => this.id(),
     loader: async () => {
-      const res = await lastValueFrom(this.#http.getResource<CategoryModel>(`/rent/categories/${this.id()}`))
+      if (!this.id()) return { ...initialCategoryModel };
+
+      const res = await lastValueFrom(this.#http.getResource<CategoryModel>(`/rent/categories/${this.id()}`));
       this.bredcrumbs.update(prev => [...prev, {
         title: res.data!.name,
         icon: 'bi-pen',
@@ -78,14 +80,14 @@ export default class CreateCategory {
     this.loading.set(true);
     if (!this.id()) {
       this.#http.post<string>('/rent/categories', this.data(), res => {
-        this.#toast.showToast("Başarılı", res, "success");
-        this.#router.navigateByUrl("/categories");
+        this.#toast.showToast('Başarılı', res, 'success');
+        this.#router.navigateByUrl('/categories');
         this.loading.set(false);
       }, () => this.loading.set(false));
     } else {
       this.#http.put<string>('/rent/categories', this.data(), res => {
-        this.#toast.showToast("Başarılı", res, "info");
-        this.#router.navigateByUrl("/categories");
+        this.#toast.showToast('Başarılı', res, 'info');
+        this.#router.navigateByUrl('/categories');
         this.loading.set(false);
       }, () => this.loading.set(false));
     }
@@ -98,3 +100,4 @@ export default class CreateCategory {
     }));
   }
 }
+

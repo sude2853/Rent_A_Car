@@ -32,6 +32,14 @@ public static class ReservationModule
             })
             .Produces<Result<string>>();
 
+        app.MapGet("my",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new ReservationGetMineQuery(), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.InternalServerError(res);
+            })
+            .Produces<Result<List<ReservationDto>>>();
+
         app.MapDelete("{id}",
             async (Guid id, ISender sender, CancellationToken cancellationToken) =>
             {

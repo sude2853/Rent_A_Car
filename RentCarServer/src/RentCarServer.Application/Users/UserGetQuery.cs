@@ -19,7 +19,7 @@ internal sealed class UserGetQueryHandler(
     public async Task<Result<UserDto>> Handle(UserGetQuery request, CancellationToken cancellationToken)
     {
         var res = await userRepository
-            .GetAllWithAudit()
+            .GetAll()
             .MapTo(roleRepository.GetAll(), branchRepository.GetAll())
             .Where(i => i.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken);

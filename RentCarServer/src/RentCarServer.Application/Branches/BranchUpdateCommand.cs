@@ -34,7 +34,10 @@ internal sealed class BranchUpdateCommandHandler(
 {
     public async Task<Result<string>> Handle(BranchUpdateCommand request, CancellationToken cancellationToken)
     {
-        var branch = await branchRepository.FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken);
+        var branch = branchRepository
+            .GetAll()
+            .AsEnumerable()
+            .FirstOrDefault(i => i.Id.Value == request.Id);
         if (branch is null)
         {
             return Result<string>.Failure("Şube bulunamadı");

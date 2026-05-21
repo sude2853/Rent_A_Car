@@ -12,21 +12,21 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label>Şube Adı (*)</label>
+                    <label>&#350;ube Ad&#305; (*)</label>
                    <input
                       type="text"
                       class="form-control"
                       [(ngModel)]="data().name"
                       name="name"
                       required>
-                    <div class="invalid-feedback">Geçerli bir şube adı girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir &#351;ube ad&#305; girin</div>
                 </div>
             </div>
         </div>
 
         <div class="admin-card">
             <div class="card-header">
-                <h6><i class="bi bi-info-circle text-primary me-2"></i>İletişim Bilgiler</h6>
+                <h6><i class="bi bi-info-circle text-primary me-2"></i>&#304;leti&#351;im Bilgileri</h6>
             </div>
             <div class="card-body">
                 <div class="form-group">
@@ -39,7 +39,7 @@
                       prefix="+90"
                       mask="(000) 000 00 00"
                       required>
-                    <div class="invalid-feedback">Geçerli bir telefon numarası girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir telefon numaras&#305; girin</div>
                 </div>
 
                 <div class="form-group mt-2">
@@ -67,11 +67,11 @@
 
         <div class="admin-card">
             <div class="card-header">
-                <h6><i class="bi bi-info-circle text-primary me-2"></i>Adres Bilgiler</h6>
+                <h6><i class="bi bi-info-circle text-primary me-2"></i>Adres Bilgileri</h6>
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label>Şehir (*)</label>
+                    <label>&#350;ehir (*)</label>
                     <flexi-select
                      [data]="iller()"
                      [loading]="ilLoading()"
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="form-group mt-2">
-                    <label>İlçe (*)</label>
+                    <label>&#304;l&#231;e (*)</label>
                     <flexi-select
                         [data]="ilceler()"
                         label="ilce_adi"
@@ -99,7 +99,7 @@
                 </div>
 
                 <div class="form-group mt-2">
-                    <label>Açık Adres (*)</label>
+                    <label>A&#231;&#305;k Adres (*)</label>
                     <textarea
                       type="text"
                       rows="5"
@@ -110,7 +110,7 @@
                       minlength="10"
                       >
                     </textarea>
-                    <div class="invalid-feedback">Geçerli bir açık adres girin</div>
+                    <div class="invalid-feedback">Ge&#231;erli bir a&#231;&#305;k adres girin</div>
                 </div>
 
             </div>

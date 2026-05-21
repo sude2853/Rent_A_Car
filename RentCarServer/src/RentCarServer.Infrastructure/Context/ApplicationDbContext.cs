@@ -41,12 +41,14 @@ internal sealed class ApplicationDbContext : DbContext, IUnitOfWork
         .FirstOrDefault(p => p.Type == ClaimTypes.NameIdentifier)?
         .Value;
 
-        if (userIdString is null)
-        {
-            return base.SaveChangesAsync(cancellationToken);
-        }
+        /* if (userIdString is null)
+         {
+             return base.SaveChangesAsync(cancellationToken);
+         }
 
-        Guid userId = Guid.Parse(userIdString);
+         Guid userId = Guid.Parse(userIdString);*/
+
+        Guid userId = userIdString is null ? Guid.Empty : Guid.Parse(userIdString);
         IdentityId identityId = new(userId);
 
         foreach (var entry in entries)

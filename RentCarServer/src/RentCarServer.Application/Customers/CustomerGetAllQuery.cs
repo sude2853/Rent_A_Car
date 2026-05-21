@@ -9,5 +9,5 @@ internal sealed class CustomerGetAllQueryHandler(
     ICustomerRepository repository) : IRequestHandler<CustomerGetAllQuery, IQueryable<CustomerDto>>
 {
     public Task<IQueryable<CustomerDto>> Handle(CustomerGetAllQuery request, CancellationToken cancellationToken) =>
-        Task.FromResult(repository.GetAllWithAudit().MapTo().AsQueryable());
+        Task.FromResult(repository.GetAll().MapTo().AsQueryable());
 }

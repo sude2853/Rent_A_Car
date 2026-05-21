@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, ViewEncapsulation } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, inject, signal, ViewEncapsulation } from '@angular/core';
 import Grid from '../../components/grid/grid';
 import { FlexiGridFilterDataModel, FlexiGridModule } from 'flexi-grid';
 import { BreadcrumbModel } from '../../services/breadcrumb';
@@ -30,36 +30,38 @@ export default class Reservations {
   ]);
   readonly statusFilterData = signal<FlexiGridFilterDataModel[]>([
     {
-      name: "Bekliyor",
-      value: "Bekliyor"
+      name: 'Bekliyor',
+      value: 'Bekliyor'
     },
     {
-      name: "Teslim Edildi",
-      value: "Teslim Edildi"
+      name: 'Teslim Edildi',
+      value: 'Teslim Edildi'
     },
     {
-      name: "Tamamlandı",
-      value: "Tamamlandı"
+      name: 'Teslim Al\u0131nd\u0131',
+      value: 'Teslim Al\u0131nd\u0131'
     },
     {
-      name: "İptal Edildi",
-      value: "İptal Edildi"
+      name: '\u0130ptal Edildi',
+      value: '\u0130ptal Edildi'
     }
   ])
 
   readonly #common = inject(Common);
 
-  checkPermission(permission: string){
+  checkPermission(permission: string) {
     return this.#common.checkPermission(permission);
   }
 
-  getStatusClass(status:string){
+  getStatusClass(status: string) {
     switch (status) {
-      case "Bekliyor": return "flexi-grid-card-warning"
-      case "Teslim Edildi": return "flexi-grid-card-info"
-      case "Tamamlandı": return "flexi-grid-card-success"
-      case "İptal Edildi": return "flexi-grid-card-danger"
-      default: return "";
+      case 'Bekliyor': return 'flexi-grid-card-warning'
+      case 'Teslim Edildi': return 'flexi-grid-card-info'
+      case 'Tamamland\u0131':
+      case 'Teslim Al\u0131nd\u0131': return 'flexi-grid-card-success'
+      case '\u0130ptal Edildi': return 'flexi-grid-card-danger'
+      default: return '';
     }
   }
 }
+

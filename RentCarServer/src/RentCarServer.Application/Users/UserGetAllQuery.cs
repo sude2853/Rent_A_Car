@@ -18,7 +18,7 @@ internal sealed class UserGetAllQueryHandler(
     public Task<IQueryable<UserDto>> Handle(UserGetAllQuery request, CancellationToken cancellationToken)
     {
         var res = userRepository
-            .GetAllWithAudit()
+            .GetAll()
             .MapTo(roleRepository
             .GetAll(), branchRepository.GetAll());
 

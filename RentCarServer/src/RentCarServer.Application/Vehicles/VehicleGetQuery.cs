@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using RentCarServer.Application.Behaviors;
 using RentCarServer.Domain.Branches;
 using RentCarServer.Domain.Categories;
@@ -19,7 +19,7 @@ internal sealed class VehicleGetQueryHandler(
     public async Task<Result<VehicleDto>> Handle(VehicleGetQuery request, CancellationToken cancellationToken)
     {
         var res = await vehicleRepository
-            .GetAllWithAudit()
+            .GetAll()
             .MapTo(
                 branchRepository.GetAll(),
                 categoryRepository.GetAll()
@@ -28,7 +28,7 @@ internal sealed class VehicleGetQueryHandler(
             .FirstOrDefaultAsync(cancellationToken);
 
         if (res is null)
-            return Result<VehicleDto>.Failure("Araç bulunamadý");
+            return Result<VehicleDto>.Failure("AraÃ§ bulunamadÄ±");
 
         return res;
     }

@@ -32,18 +32,18 @@ export default class Create {
   readonly id = signal<string | undefined>(undefined);
   readonly bredcrumbs = signal<BreadcrumbModel[]>([
     {
-      title: 'Kullanıcılar',
+      title: 'Kullan\u0131c\u0131lar',
       icon: 'bi-people',
       url: '/users'
     }
   ]);
-  readonly pageTitle = computed(() => this.id() ? 'Kullanıcı Güncelle' : 'Kullanıcı Ekle');
+  readonly pageTitle = computed(() => this.id() ? 'Kullan\u0131c\u0131 G\u00fcncelle' : 'Kullan\u0131c\u0131 Ekle');
   readonly pageIcon = computed(() => this.id() ? 'bi-pen' : 'bi-plus');
-  readonly btnName = computed(() => this.id() ? 'Güncelle' : 'Kaydet');
+  readonly btnName = computed(() => this.id() ? 'G\u00fcncelle' : 'Kaydet');
   readonly result = resource({
     params: () => this.id(),
     loader: async () => {
-      var res = await lastValueFrom(this.#http.getResource<UserModel>(`/rent/users/${this.id()}`));
+      const res = await lastValueFrom(this.#http.getResource<UserModel>(`/rent/users/${this.id()}`));
 
       this.bredcrumbs.update(prev => [...prev, {
           title: res.data!.fullName,
@@ -59,10 +59,8 @@ export default class Create {
   readonly loading = linkedSignal(() => this.result.isLoading());
   readonly branchResult = httpResource<ODataModel<BranchModel>>(() => '/rent/odata/branches');
   readonly branches = computed(() => this.branchResult.value()?.value ?? []);
-  readonly branchLoading = computed(() => this.branchResult.isLoading());
   readonly roleResult = httpResource<ODataModel<RoleModel>>(() => '/rent/odata/roles');
   readonly roles = computed(() => this.roleResult.value()?.value ?? []);
-  readonly roleLoading = computed(() => this.roleResult.isLoading());
 
   readonly #breadcrumb = inject(BreadcrumbService);
   readonly #activated = inject(ActivatedRoute);
@@ -93,14 +91,14 @@ export default class Create {
     if(!this.id()){
       this.loading.set(true);
       this.#http.post<string>('/rent/users', this.data(), (res) => {
-        this.#toast.showToast("Başarılı",res,"success");
+        this.#toast.showToast("Ba\u015far\u0131l\u0131",res,"success");
         this.#router.navigateByUrl("/users");
         this.loading.set(false);
       },() => this.loading.set(false));
     }else{
       this.loading.set(true);
       this.#http.put<string>('/rent/users', this.data(), (res) => {
-        this.#toast.showToast("Başarılı",res,"info");
+        this.#toast.showToast("Ba\u015far\u0131l\u0131",res,"info");
         this.#router.navigateByUrl("/users");
         this.loading.set(false);
       },() => this.loading.set(false));
